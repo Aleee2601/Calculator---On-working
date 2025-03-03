@@ -3,12 +3,16 @@
   "WorkspaceRootPath": "E:\\Proiecte Personale\\Calculator\\Calculator\\",
   "Documents": [
     {
+      "AbsoluteMoniker": "D:0:0:{A5FEED05-A4DD-4FC2-8FFE-701324BC9DDC}|Calculator\\Calculator.csproj|e:\\proiecte personale\\calculator\\calculator\\calculator\\views\\mainwindow.xaml.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{A5FEED05-A4DD-4FC2-8FFE-701324BC9DDC}|Calculator\\Calculator.csproj|solutionrelative:calculator\\views\\mainwindow.xaml.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
       "AbsoluteMoniker": "D:0:0:{A5FEED05-A4DD-4FC2-8FFE-701324BC9DDC}|Calculator\\Calculator.csproj|e:\\proiecte personale\\calculator\\calculator\\calculator\\views\\mainwindow.xaml||{F11ACC28-31D1-4C80-A34B-F4E09D3D753C}",
       "RelativeMoniker": "D:0:0:{A5FEED05-A4DD-4FC2-8FFE-701324BC9DDC}|Calculator\\Calculator.csproj|solutionrelative:calculator\\views\\mainwindow.xaml||{F11ACC28-31D1-4C80-A34B-F4E09D3D753C}"
     },
     {
-      "AbsoluteMoniker": "D:0:0:{A5FEED05-A4DD-4FC2-8FFE-701324BC9DDC}|Calculator\\Calculator.csproj|e:\\proiecte personale\\calculator\\calculator\\calculator\\views\\mainwindow.xaml.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{A5FEED05-A4DD-4FC2-8FFE-701324BC9DDC}|Calculator\\Calculator.csproj|solutionrelative:calculator\\views\\mainwindow.xaml.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+      "AbsoluteMoniker": "D:0:0:{A5FEED05-A4DD-4FC2-8FFE-701324BC9DDC}|Calculator\\Calculator.csproj|e:\\proiecte personale\\calculator\\calculator\\calculator\\models\\calculatormodel.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{A5FEED05-A4DD-4FC2-8FFE-701324BC9DDC}|Calculator\\Calculator.csproj|solutionrelative:calculator\\models\\calculatormodel.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     },
     {
       "AbsoluteMoniker": "D:0:0:{A5FEED05-A4DD-4FC2-8FFE-701324BC9DDC}|Calculator\\Calculator.csproj|e:\\proiecte personale\\calculator\\calculator\\calculator\\app.xaml||{F11ACC28-31D1-4C80-A34B-F4E09D3D753C}",
@@ -24,10 +28,6 @@
     {
       "AbsoluteMoniker": "D:0:0:{A5FEED05-A4DD-4FC2-8FFE-701324BC9DDC}|Calculator\\Calculator.csproj|e:\\proiecte personale\\calculator\\calculator\\calculator\\viewmodels\\calculatorviewmodel.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
       "RelativeMoniker": "D:0:0:{A5FEED05-A4DD-4FC2-8FFE-701324BC9DDC}|Calculator\\Calculator.csproj|solutionrelative:calculator\\viewmodels\\calculatorviewmodel.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
-    },
-    {
-      "AbsoluteMoniker": "D:0:0:{A5FEED05-A4DD-4FC2-8FFE-701324BC9DDC}|Calculator\\Calculator.csproj|e:\\proiecte personale\\calculator\\calculator\\calculator\\models\\calculatormodel.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{A5FEED05-A4DD-4FC2-8FFE-701324BC9DDC}|Calculator\\Calculator.csproj|solutionrelative:calculator\\models\\calculatormodel.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     },
     {
       "AbsoluteMoniker": "D:0:0:{A5FEED05-A4DD-4FC2-8FFE-701324BC9DDC}|Calculator\\Calculator.csproj|e:\\proiecte personale\\calculator\\calculator\\calculator\\viewmodels\\relaycommand.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
@@ -49,7 +49,7 @@
       "DocumentGroups": [
         {
           "DockedWidth": 200,
-          "SelectedChildIndex": 2,
+          "SelectedChildIndex": 4,
           "Children": [
             {
               "$type": "Bookmark",
@@ -69,19 +69,19 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 0,
+              "DocumentIndex": 1,
               "Title": "MainWindow.xaml",
               "DocumentMoniker": "E:\\Proiecte Personale\\Calculator\\Calculator\\Calculator\\Views\\MainWindow.xaml",
               "RelativeDocumentMoniker": "Calculator\\Views\\MainWindow.xaml",
-              "ToolTip": "E:\\Proiecte Personale\\Calculator\\Calculator\\Calculator\\Views\\MainWindow.xaml*",
-              "RelativeToolTip": "Calculator\\Views\\MainWindow.xaml*",
+              "ToolTip": "E:\\Proiecte Personale\\Calculator\\Calculator\\Calculator\\Views\\MainWindow.xaml",
+              "RelativeToolTip": "Calculator\\Views\\MainWindow.xaml",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.003549|",
               "WhenOpened": "2025-03-03T14:07:59.578Z",
               "EditorCaption": ""
             },
             {
               "$type": "Document",
-              "DocumentIndex": 3,
+              "DocumentIndex": 4,
               "Title": "ResourcePart.cs",
               "DocumentMoniker": "C:\\Users\\alexa\\AppData\\Local\\Temp\\.vsdbgsrc\\b49ace08f4cd26a4f275d628999a0f91ccb8a1892704530d9e6f5bd1284082f1\\ResourcePart.cs",
               "ToolTip": "C:\\Users\\alexa\\AppData\\Local\\Temp\\.vsdbgsrc\\b49ace08f4cd26a4f275d628999a0f91ccb8a1892704530d9e6f5bd1284082f1\\ResourcePart.cs",
@@ -92,32 +92,33 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 1,
+              "DocumentIndex": 0,
               "Title": "MainWindow.xaml.cs",
               "DocumentMoniker": "E:\\Proiecte Personale\\Calculator\\Calculator\\Calculator\\Views\\MainWindow.xaml.cs",
               "RelativeDocumentMoniker": "Calculator\\Views\\MainWindow.xaml.cs",
-              "ToolTip": "E:\\Proiecte Personale\\Calculator\\Calculator\\Calculator\\Views\\MainWindow.xaml.cs",
-              "RelativeToolTip": "Calculator\\Views\\MainWindow.xaml.cs",
-              "ViewState": "AgIAAAAAAAAAAAAAAAAAABgAAAAJAAAAAAAAAA==",
+              "ToolTip": "E:\\Proiecte Personale\\Calculator\\Calculator\\Calculator\\Views\\MainWindow.xaml.cs*",
+              "RelativeToolTip": "Calculator\\Views\\MainWindow.xaml.cs*",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAABwAAAAMAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
               "WhenOpened": "2025-03-03T14:05:58.37Z",
               "EditorCaption": ""
             },
             {
               "$type": "Document",
-              "DocumentIndex": 6,
+              "DocumentIndex": 2,
               "Title": "CalculatorModel.cs",
               "DocumentMoniker": "E:\\Proiecte Personale\\Calculator\\Calculator\\Calculator\\Models\\CalculatorModel.cs",
               "RelativeDocumentMoniker": "Calculator\\Models\\CalculatorModel.cs",
               "ToolTip": "E:\\Proiecte Personale\\Calculator\\Calculator\\Calculator\\Models\\CalculatorModel.cs",
               "RelativeToolTip": "Calculator\\Models\\CalculatorModel.cs",
-              "ViewState": "AgIAACAAAAAAAAAAAAAIwJgAAAANAAAAAAAAAA==",
+              "ViewState": "AgIAACAAAAAAAAAAAAAIwCsAAAAqAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2025-03-03T14:04:17.996Z"
+              "WhenOpened": "2025-03-03T14:04:17.996Z",
+              "EditorCaption": ""
             },
             {
               "$type": "Document",
-              "DocumentIndex": 5,
+              "DocumentIndex": 6,
               "Title": "CalculatorViewModel.cs",
               "DocumentMoniker": "E:\\Proiecte Personale\\Calculator\\Calculator\\Calculator\\ViewModels\\CalculatorViewModel.cs",
               "RelativeDocumentMoniker": "Calculator\\ViewModels\\CalculatorViewModel.cs",
@@ -153,7 +154,7 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 4,
+              "DocumentIndex": 5,
               "Title": "AssemblyInfo.cs",
               "DocumentMoniker": "E:\\Proiecte Personale\\Calculator\\Calculator\\Calculator\\AssemblyInfo.cs",
               "RelativeDocumentMoniker": "Calculator\\AssemblyInfo.cs",
@@ -166,7 +167,7 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 2,
+              "DocumentIndex": 3,
               "Title": "App.xaml",
               "DocumentMoniker": "E:\\Proiecte Personale\\Calculator\\Calculator\\Calculator\\App.xaml",
               "RelativeDocumentMoniker": "Calculator\\App.xaml",

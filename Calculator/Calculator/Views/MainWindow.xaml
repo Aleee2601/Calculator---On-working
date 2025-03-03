@@ -9,17 +9,31 @@
             <RowDefinition Height="*"/>
         </Grid.RowDefinitions>
 
+        <!-- Mode Selection -->
+        <StackPanel Orientation="Horizontal" Margin="10">
+            <RadioButton Content="Standard  " IsChecked="True"/>
+            <RadioButton Content="Programmer" Checked="RadioButton_Checked"/>
+        </StackPanel>
+
+
         <!-- Display -->
         <TextBox x:Name="txtDisplay"
-                 FontSize="32" 
-                 Height="70"
+                 FontSize="32"
                  Background="#292929"
                  Foreground="White"
                  TextAlignment="Right"
                  Padding="10"
                  IsReadOnly="True"
                  VerticalContentAlignment="Center"
-                 Margin="10"/>
+                 Margin="10,31,10,10"/>
+
+        <!-- 
+            TODO:
+            - add MS adnd MscrollDown
+            - add a menu for standard and programmer calculator
+            
+        -->
+
 
         <!-- Buttons Grid -->
         <Grid Grid.Row="1" Margin="10">

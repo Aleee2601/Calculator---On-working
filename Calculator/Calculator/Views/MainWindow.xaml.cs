@@ -24,6 +24,10 @@ namespace Calculator.Views
             DataContext = new CalculatorViewModel(); // Setează ViewModel-ul
         }
 
-        
+        private void RadioButton_Checked(object sender, RoutedEventArgs e)
+        {
+            
+
+        }
     }
 }
