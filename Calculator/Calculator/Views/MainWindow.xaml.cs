@@ -12,12 +12,18 @@ using System.Windows.Shapes;
 namespace Calculator;
 
 /// <summary>
-/// Interaction logic for MainWindow.xaml
+/// Interaction logic for MainWindow.xaml\
+/// Nu trb sa contina logica
 /// </summary>
 public partial class MainWindow : Window
 {
     public MainWindow()
     {
         InitializeComponent();
+    }
+
+    private void InitializeComponent()
+    {
+        throw new NotImplementedException();
     }
 }
