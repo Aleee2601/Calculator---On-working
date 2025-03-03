@@ -15,7 +15,6 @@ namespace Calculator.Models
         private static List<double> memoryStack = new List<double>();
 
 
-
         #region Math Operations
         static public double Add(double a, double b)
         {
@@ -65,6 +64,10 @@ namespace Calculator.Models
                 throw new DivideByZeroException();
             }
             return 1 / a;
+        }
+        static public double Equals(double a)
+        {
+            return a;
         }
         #endregion
 

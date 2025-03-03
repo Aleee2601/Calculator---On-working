@@ -8,22 +8,22 @@ using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
+using Calculator.ViewModels;
 
-namespace Calculator;
-
+namespace Calculator.Views
+{
 /// <summary>
 /// Interaction logic for MainWindow.xaml\
 /// Nu trb sa contina logica
 /// </summary>
-public partial class MainWindow : Window
-{
-    public MainWindow()
+    public partial class MainWindow : Window
     {
-        InitializeComponent();
-    }
+        public MainWindow()
+        {
+            InitializeComponent();
+            DataContext = new CalculatorViewModel(); // Setează ViewModel-ul
+        }
 
-    private void InitializeComponent()
-    {
-        throw new NotImplementedException();
+        
     }
 }
