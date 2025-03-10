@@ -113,5 +113,28 @@ namespace Calculator.ViewModels
 
         protected void OnPropertyChanged(string propertyName) =>
             PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
+
+
+
+
+        private int _currentBase = 10;
+
+        public void SetBase(int newBase)
+        {
+            try
+            {
+                int decimalValue = Convert.ToInt32(DisplayText, _currentBase);
+                _currentBase = newBase;
+                DisplayText = Convert.ToString(decimalValue, newBase).ToUpper();
+                OnPropertyChanged(nameof(DisplayText));
+            }
+            catch
+            {
+                DisplayText = "Eroare";
+            }
+        }
+
+
+
     }
 }

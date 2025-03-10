@@ -1,8 +1,71 @@
 ﻿<Window x:Class="Calculator.Views.MainWindow"
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:local="clr-namespace:Calculator.Views"
+
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-        Title="Calculator" Height="500" Width="350"
-        Background="#1E1E1E" Foreground="White">
+        Title="Calculator" Height="600" Width="350"
+        Background="#1E1E1E" Foreground="White"
+        FontFamily="Segoe UI">
+
+    <Window.Resources>
+        <local:BoolToFontWeightConverter x:Key="BoolToFontWeightConverter"/>
+        <local:BoolToVisibilityConverter x:Key="BoolToVisibilityConverter"/>
+        <!-- General Button Style -->
+        <Style TargetType="Button" x:Key="CalcButtonStyle">
+            <Setter Property="Margin" Value="4"/>
+            <Setter Property="Padding" Value="0"/>
+            <Setter Property="FontSize" Value="20"/>
+            <Setter Property="FontFamily" Value="Segoe UI"/>
+            <Setter Property="Background" Value="#2D2D30"/>
+            <Setter Property="Foreground" Value="White"/>
+            <Setter Property="BorderThickness" Value="0"/>
+            <Setter Property="Cursor" Value="Hand"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="Button">
+                        <Border Background="{TemplateBinding Background}" CornerRadius="8">
+                            <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                        </Border>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+
+        <Style x:Key="ModeToggleButtonStyle" TargetType="ToggleButton">
+            <Setter Property="FontSize" Value="16"/>
+            <Setter Property="Foreground" Value="White"/>
+            <Setter Property="Background" Value="Transparent"/>
+            <Setter Property="BorderThickness" Value="0"/>
+            <Setter Property="Padding" Value="4,2"/>
+            <Setter Property="Cursor" Value="Hand"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="ToggleButton">
+                        <StackPanel Orientation="Vertical">
+                            <TextBlock Text="{TemplateBinding Content}" 
+                               HorizontalAlignment="Center" 
+                               FontWeight="{Binding IsChecked, RelativeSource={RelativeSource TemplatedParent}, Converter={StaticResource BoolToFontWeightConverter}}"/>
+                            <Rectangle Height="2" 
+                               Fill="#0078D7" 
+                               Visibility="{Binding IsChecked, RelativeSource={RelativeSource TemplatedParent}, Converter={StaticResource BoolToVisibilityConverter}}"/>
+                        </StackPanel>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+       
+
+
+
+
+
+        <!-- Equals (=) Button Style -->
+        <Style TargetType="Button" x:Key="EqualsButtonStyle" BasedOn="{StaticResource CalcButtonStyle}">
+            <Setter Property="Background" Value="#0078D7"/>
+            <Setter Property="Foreground" Value="White"/>
+        </Style>
+    </Window.Resources>
+
     <Grid>
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto"/>
@@ -10,87 +73,209 @@
         </Grid.RowDefinitions>
 
         <!-- Mode Selection -->
-        <StackPanel Orientation="Horizontal" Margin="10">
-            <RadioButton Content="Standard  " IsChecked="True"/>
-            <RadioButton Content="Programmer" Checked="RadioButton_Checked"/>
+        <StackPanel Orientation="Horizontal" Margin="10,10,10,0">
+            <ToggleButton x:Name="btnStandard" Content="Standard" 
+                  IsChecked="True"
+                  Style="{StaticResource ModeToggleButtonStyle}"
+                  Checked="Mode_Checked"/>
+            <ToggleButton x:Name="btnProgrammer" Content="Programmer" 
+                  Margin="10,0,0,0"
+                  Style="{StaticResource ModeToggleButtonStyle}"
+                  Checked="Mode_Checked"/>
+        </StackPanel>
+
+        <!-- Top Panel (Programmer Mode Selector + Display) -->
+        <StackPanel Grid.Row="0">
+            <!-- Programmer Base Selection -->
+            <StackPanel x:Name="ProgrammerPanel" Orientation="Horizontal" Visibility="Collapsed" Margin="10,5,10,0" HorizontalAlignment="Center">
+                <RadioButton Content="BIN" GroupName="Bases" Tag="2" Checked="Base_Checked" Margin="5"/>
+                <RadioButton Content="OCT" GroupName="Bases" Tag="8" Checked="Base_Checked" Margin="5"/>
+                <RadioButton Content="DEC" GroupName="Bases" Tag="10" IsChecked="True" Checked="Base_Checked" Margin="5"/>
+                <RadioButton Content="HEX" GroupName="Bases" Tag="16" Checked="Base_Checked" Margin="5"/>
+            </StackPanel>
+
+            <!-- Display -->
+            <TextBox x:Name="txtDisplay"
+             FontSize="36"
+             Background="#1E1E1E"
+             Foreground="White"
+             TextAlignment="Right"
+             Padding="10"
+             IsReadOnly="True"
+             BorderThickness="0"
+             VerticalContentAlignment="Center"
+             Margin="10,10,10,10"/>
         </StackPanel>
 
 
-        <!-- Display -->
-        <TextBox x:Name="txtDisplay"
-                 FontSize="32"
-                 Background="#292929"
-                 Foreground="White"
-                 TextAlignment="Right"
-                 Padding="10"
-                 IsReadOnly="True"
-                 VerticalContentAlignment="Center"
-                 Margin="10,31,10,10"/>
-
-        <!-- 
-            TODO:
-            - add MS adnd MscrollDown
-            - add a menu for standard and programmer calculator
-            
-        -->
 
 
-        <!-- Buttons Grid -->
-        <Grid Grid.Row="1" Margin="10">
-            <Grid.RowDefinitions>
-                <RowDefinition/>
-                <RowDefinition/>
-                <RowDefinition/>
-                <RowDefinition/>
-                <RowDefinition/>
-                <RowDefinition/>
-                <RowDefinition/>
-            </Grid.RowDefinitions>
-            <Grid.ColumnDefinitions>
-                <ColumnDefinition/>
-                <ColumnDefinition/>
-                <ColumnDefinition/>
-                <ColumnDefinition/>
-            </Grid.ColumnDefinitions>
 
-            <!-- Memory Functions -->
-            <Button Grid.Row="0" Grid.Column="0" Content="MC" Command="{Binding MemoryClearCommand}"/>
-            <Button Grid.Row="0" Grid.Column="1" Content="MR" Command="{Binding MemoryRecallCommand}"/>
-            <Button Grid.Row="0" Grid.Column="2" Content="M+" Command="{Binding MemoryPlusCommand}"/>
-            <Button Grid.Row="0" Grid.Column="3" Content="M-" Command="{Binding MemoryMinusCommand}"/>
+        <Grid Grid.Row="1">
+            <Grid Grid.Row="1" Margin="10">
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto"/>
+                    <!-- Memory buttons -->
+                    <RowDefinition Height="*"/>
+                    <!-- Main 6x4 calculator grid -->
+                </Grid.RowDefinitions>
 
-            <!-- Clear Functions -->
-            <Button Grid.Row="1" Grid.Column="0" Content="%" Command="{Binding OperatorCommand}" CommandParameter="%"/>
-            <Button Grid.Row="1" Grid.Column="1" Content="CE" Command="{Binding ClearEntryCommand}"/>
-            <Button Grid.Row="1" Grid.Column="2" Content="C" Command="{Binding ClearCommand}"/>
-            <Button Grid.Row="1" Grid.Column="3" Content="⌫" Command="{Binding BackspaceCommand}"/>
+                <!-- MEMORY BUTTONS GRID (top row) -->
+                <Grid Grid.Row="0">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="*"/>
+                    </Grid.ColumnDefinitions>
 
-            <!-- Math Functions -->
-            <Button Grid.Row="2" Grid.Column="0" Content="1/x" Command="{Binding OperatorCommand}" CommandParameter="1/x"/>
-            <Button Grid.Row="2" Grid.Column="1" Content="x²" Command="{Binding OperatorCommand}" CommandParameter="pow"/>
-            <Button Grid.Row="2" Grid.Column="2" Content="√x" Command="{Binding OperatorCommand}" CommandParameter="sqrt"/>
-            <Button Grid.Row="2" Grid.Column="3" Content="/" Command="{Binding OperatorCommand}" CommandParameter="/"/>
+                    <Button Style="{StaticResource CalcButtonStyle}" Grid.Column="0" Content="MC" Command="{Binding MemoryClearCommand}"/>
+                    <Button Style="{StaticResource CalcButtonStyle}" Grid.Column="1" Content="MR" Command="{Binding MemoryRecallCommand}"/>
+                    <Button Style="{StaticResource CalcButtonStyle}" Grid.Column="2" Content="M+" Command="{Binding MemoryPlusCommand}"/>
+                    <Button Style="{StaticResource CalcButtonStyle}" Grid.Column="3" Content="M-" Command="{Binding MemoryMinusCommand}"/>
+                    <Button Style="{StaticResource CalcButtonStyle}" Grid.Column="4" Content="MS"/>
+                    <Button Style="{StaticResource CalcButtonStyle}" Grid.Column="5" Content="M˅"/>
+                </Grid>
 
-            <!-- Numbers & Operations -->
-            <Button Grid.Row="3" Grid.Column="0" Content="7" Command="{Binding NumberCommand}" CommandParameter="7"/>
-            <Button Grid.Row="3" Grid.Column="1" Content="8" Command="{Binding NumberCommand}" CommandParameter="8"/>
-            <Button Grid.Row="3" Grid.Column="2" Content="9" Command="{Binding NumberCommand}" CommandParameter="9"/>
-            <Button Grid.Row="3" Grid.Column="3" Content="*" Command="{Binding OperatorCommand}" CommandParameter="*"/>
+                <!-- MAIN BUTTONS GRID (6x4) -->
+                <Grid Grid.Row="1">
+                    <Grid.RowDefinitions>
+                        <RowDefinition/>
+                        <RowDefinition/>
+                        <RowDefinition/>
+                        <RowDefinition/>
+                        <RowDefinition/>
+                        <RowDefinition/>
+                    </Grid.RowDefinitions>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="*"/>
+                    </Grid.ColumnDefinitions>
 
-            <Button Grid.Row="4" Grid.Column="0" Content="4" Command="{Binding NumberCommand}" CommandParameter="4"/>
-            <Button Grid.Row="4" Grid.Column="1" Content="5" Command="{Binding NumberCommand}" CommandParameter="5"/>
-            <Button Grid.Row="4" Grid.Column="2" Content="6" Command="{Binding NumberCommand}" CommandParameter="6"/>
-            <Button Grid.Row="4" Grid.Column="3" Content="-" Command="{Binding OperatorCommand}" CommandParameter="-"/>
+                    <!-- Row 0 -->
+                    <Button Style="{StaticResource CalcButtonStyle}" Grid.Row="0" Grid.Column="0" Content="%" CommandParameter="%"/>
+                    <Button Style="{StaticResource CalcButtonStyle}" Grid.Row="0" Grid.Column="1" Content="CE" Command="{Binding ClearEntryCommand}"/>
+                    <Button Style="{StaticResource CalcButtonStyle}" Grid.Row="0" Grid.Column="2" Content="C" Command="{Binding ClearCommand}"/>
+                    <Button Style="{StaticResource CalcButtonStyle}" Grid.Row="0" Grid.Column="3" Content="⌫" Command="{Binding BackspaceCommand}"/>
 
-            <Button Grid.Row="5" Grid.Column="0" Content="1" Command="{Binding NumberCommand}" CommandParameter="1"/>
-            <Button Grid.Row="5" Grid.Column="1" Content="2" Command="{Binding NumberCommand}" CommandParameter="2"/>
-            <Button Grid.Row="5" Grid.Column="2" Content="3" Command="{Binding NumberCommand}" CommandParameter="3"/>
-            <Button Grid.Row="5" Grid.Column="3" Content="+" Command="{Binding OperatorCommand}" CommandParameter="+"/>
+                    <!-- Row 1 -->
+                    <Button Style="{StaticResource CalcButtonStyle}" Grid.Row="1" Grid.Column="0" Content="1/x" CommandParameter="1/x"/>
+                    <Button Style="{StaticResource CalcButtonStyle}" Grid.Row="1" Grid.Column="1" Content="x²" CommandParameter="pow"/>
+                    <Button Style="{StaticResource CalcButtonStyle}" Grid.Row="1" Grid.Column="2" Content="√x" CommandParameter="sqrt"/>
+                    <Button Style="{StaticResource CalcButtonStyle}" Grid.Row="1" Grid.Column="3" Content="÷" CommandParameter="/"/>
 
-            <Button Grid.Row="6" Grid.Column="0" Content="+/-" Command="{Binding OperatorCommand}" CommandParameter="+/-"/>
-            <Button Grid.Row="6" Grid.Column="1" Content="0" Command="{Binding NumberCommand}" CommandParameter="0"/>
-            <Button Grid.Row="6" Grid.Column="2" Content="." Command="{Binding OperatorCommand}" CommandParameter="."/>
-            <Button Grid.Row="6" Grid.Column="3" Content="=" Command="{Binding OperatorCommand}" CommandParameter="=" Background="#4CAF50" Foreground="White"/>
+                    <!-- Row 2 -->
+                    <Button Style="{StaticResource CalcButtonStyle}" Grid.Row="2" Grid.Column="0" Content="7" CommandParameter="7"/>
+                    <Button Style="{StaticResource CalcButtonStyle}" Grid.Row="2" Grid.Column="1" Content="8" CommandParameter="8"/>
+                    <Button Style="{StaticResource CalcButtonStyle}" Grid.Row="2" Grid.Column="2" Content="9" CommandParameter="9"/>
+                    <Button Style="{StaticResource CalcButtonStyle}" Grid.Row="2" Grid.Column="3" Content="×" CommandParameter="*"/>
+
+                    <!-- Row 3 -->
+                    <Button Style="{StaticResource CalcButtonStyle}" Grid.Row="3" Grid.Column="0" Content="4" CommandParameter="4"/>
+                    <Button Style="{StaticResource CalcButtonStyle}" Grid.Row="3" Grid.Column="1" Content="5" CommandParameter="5"/>
+                    <Button Style="{StaticResource CalcButtonStyle}" Grid.Row="3" Grid.Column="2" Content="6" CommandParameter="6"/>
+                    <Button Style="{StaticResource CalcButtonStyle}" Grid.Row="3" Grid.Column="3" Content="−" CommandParameter="-"/>
+
+                    <!-- Row 4 -->
+                    <Button Style="{StaticResource CalcButtonStyle}" Grid.Row="4" Grid.Column="0" Content="1" CommandParameter="1"/>
+                    <Button Style="{StaticResource CalcButtonStyle}" Grid.Row="4" Grid.Column="1" Content="2" CommandParameter="2"/>
+                    <Button Style="{StaticResource CalcButtonStyle}" Grid.Row="4" Grid.Column="2" Content="3" CommandParameter="3"/>
+                    <Button Style="{StaticResource CalcButtonStyle}" Grid.Row="4" Grid.Column="3" Content="+" CommandParameter="+"/>
+
+                    <!-- Row 5 -->
+                    <Button Style="{StaticResource CalcButtonStyle}" Grid.Row="5" Grid.Column="0" Content="±" CommandParameter="+/-"/>
+                    <Button Style="{StaticResource CalcButtonStyle}" Grid.Row="5" Grid.Column="1" Content="0" CommandParameter="0"/>
+                    <Button Style="{StaticResource CalcButtonStyle}" Grid.Row="5" Grid.Column="2" Content="." CommandParameter="."/>
+                    <Button Style="{StaticResource EqualsButtonStyle}" Grid.Row="5" Grid.Column="3" Content="=" CommandParameter="="/>
+                </Grid>
+            </Grid>
+
+
+            <Grid x:Name="ProgrammerGrid" Visibility="Collapsed">
+                <Grid.RowDefinitions>
+                    <RowDefinition/>
+                    <!-- HEX -->
+                    <RowDefinition/>
+                    <!-- Memory -->
+                    <RowDefinition/>
+                    <!-- Clear -->
+                    <RowDefinition/>
+                    <!-- Math -->
+                    <RowDefinition/>
+                    <!-- 7–9 -->
+                    <RowDefinition/>
+                    <!-- 4–6 -->
+                    <RowDefinition/>
+                    <!-- 1–3 -->
+                    <RowDefinition/>
+                    <!-- 0 and ops -->
+                </Grid.RowDefinitions>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="*"/>
+                </Grid.ColumnDefinitions>
+                <!-- Programmer buttons layout here (6 columns + A–F row etc.) -->
+                <!-- Row 0: HEX Buttons (only visible in base 16) -->
+                <Button x:Name="btnA" Grid.Row="0" Grid.Column="0" Content="A" Command="{Binding NumberCommand}" CommandParameter="A" Style="{StaticResource CalcButtonStyle}" Visibility="Collapsed"/>
+                <Button x:Name="btnB" Grid.Row="0" Grid.Column="1" Content="B" Command="{Binding NumberCommand}" CommandParameter="B" Style="{StaticResource CalcButtonStyle}" Visibility="Collapsed"/>
+                <Button x:Name="btnC" Grid.Row="0" Grid.Column="2" Content="C" Command="{Binding NumberCommand}" CommandParameter="C" Style="{StaticResource CalcButtonStyle}" Visibility="Collapsed"/>
+                <Button x:Name="btnD" Grid.Row="0" Grid.Column="3" Content="D" Command="{Binding NumberCommand}" CommandParameter="D" Style="{StaticResource CalcButtonStyle}" Visibility="Collapsed"/>
+                <Button x:Name="btnE" Grid.Row="0" Grid.Column="4" Content="E" Command="{Binding NumberCommand}" CommandParameter="E" Style="{StaticResource CalcButtonStyle}" Visibility="Collapsed"/>
+                <Button x:Name="btnF" Grid.Row="0" Grid.Column="5" Content="F" Command="{Binding NumberCommand}" CommandParameter="F" Style="{StaticResource CalcButtonStyle}" Visibility="Collapsed"/>
+
+                <!-- Memory Functions -->
+                <Button Style="{StaticResource CalcButtonStyle}" Grid.Row="1" Grid.Column="0" Content="MC" Command="{Binding MemoryClearCommand}" Margin="4,4,4,4"/>
+                <Button Style="{StaticResource CalcButtonStyle}" Grid.Row="1" Grid.Column="1" Content="MR" Command="{Binding MemoryRecallCommand}" Grid.ColumnSpan="2" Margin="4,4,4,4"/>
+                <Button Style="{StaticResource CalcButtonStyle}" Grid.Row="1" Grid.Column="3" Content="M+" Command="{Binding MemoryPlusCommand}" Margin="4,4,4,4"/>
+                <Button Style="{StaticResource CalcButtonStyle}" Grid.Row="1" Grid.Column="4" Content="M-" Command="{Binding MemoryMinusCommand}" Margin="4,4,4,4"/>
+
+                <!-- Clear Functions -->
+                <Button Style="{StaticResource CalcButtonStyle}" Grid.Row="2" Grid.Column="0" Content="%" Command="{Binding OperatorCommand}" CommandParameter="%" Margin="4,4,4,4"/>
+                <Button Style="{StaticResource CalcButtonStyle}" Grid.Row="2" Grid.Column="1" Content="CE" Command="{Binding ClearEntryCommand}" Grid.ColumnSpan="2" Margin="4,4,4,4"/>
+                <Button Style="{StaticResource CalcButtonStyle}" Grid.Row="2" Grid.Column="3" Content="C" Command="{Binding ClearCommand}" Margin="4,4,4,4"/>
+                <Button Style="{StaticResource CalcButtonStyle}" Grid.Row="2" Grid.Column="4" Content="⌫" Command="{Binding BackspaceCommand}" Margin="4,4,4,4"/>
+
+                <!-- Math Functions -->
+                <Button Style="{StaticResource CalcButtonStyle}" Grid.Row="3" Grid.Column="0" Content="1/x" Command="{Binding OperatorCommand}" CommandParameter="1/x" Margin="4,4,4,4"/>
+                <Button Style="{StaticResource CalcButtonStyle}" Grid.Row="3" Grid.Column="1" Content="x²" Command="{Binding OperatorCommand}" CommandParameter="pow" Grid.ColumnSpan="2" Margin="4,4,4,4"/>
+                <Button Style="{StaticResource CalcButtonStyle}" Grid.Row="3" Grid.Column="3" Content="√x" Command="{Binding OperatorCommand}" CommandParameter="sqrt" Margin="4,4,4,4"/>
+                <Button Style="{StaticResource CalcButtonStyle}" Grid.Row="3" Grid.Column="4" Content="/" Command="{Binding OperatorCommand}" CommandParameter="/" Margin="4,4,4,4"/>
+
+                <!-- Numbers & Operations -->
+                <Button Style="{StaticResource CalcButtonStyle}" Grid.Row="4" Grid.Column="0" Content="7" Command="{Binding NumberCommand}" CommandParameter="7" Margin="4,4,4,4"/>
+                <Button Style="{StaticResource CalcButtonStyle}" Grid.Row="4" Grid.Column="1" Content="8" Command="{Binding NumberCommand}" CommandParameter="8" Grid.ColumnSpan="2" Margin="4,4,4,4"/>
+                <Button Style="{StaticResource CalcButtonStyle}" Grid.Row="4" Grid.Column="3" Content="9" Command="{Binding NumberCommand}" CommandParameter="9" Margin="4,4,4,4"/>
+                <Button Style="{StaticResource CalcButtonStyle}" Grid.Row="4" Grid.Column="4" Content="*" Command="{Binding OperatorCommand}" CommandParameter="*" Margin="4,4,4,4"/>
+
+                <Button Style="{StaticResource CalcButtonStyle}" Grid.Row="5" Grid.Column="0" Content="4" Command="{Binding NumberCommand}" CommandParameter="4" Margin="4,4,4,4"/>
+                <Button Style="{StaticResource CalcButtonStyle}" Grid.Row="5" Grid.Column="1" Content="5" Command="{Binding NumberCommand}" CommandParameter="5" Grid.ColumnSpan="2" Margin="4,4,4,4"/>
+                <Button Style="{StaticResource CalcButtonStyle}" Grid.Row="5" Grid.Column="3" Content="6" Command="{Binding NumberCommand}" CommandParameter="6" Margin="4,4,4,4"/>
+                <Button Style="{StaticResource CalcButtonStyle}" Grid.Row="5" Grid.Column="4" Content="-" Command="{Binding OperatorCommand}" CommandParameter="-" Margin="4,4,4,4"/>
+
+                <Button Style="{StaticResource CalcButtonStyle}" Grid.Row="6" Grid.Column="0" Content="1" Command="{Binding NumberCommand}" CommandParameter="1" Margin="4,4,4,4"/>
+                <Button Style="{StaticResource CalcButtonStyle}" Grid.Row="6" Grid.Column="1" Content="2" Command="{Binding NumberCommand}" CommandParameter="2" Grid.ColumnSpan="2" Margin="4,4,4,4"/>
+                <Button Style="{StaticResource CalcButtonStyle}" Grid.Row="6" Grid.Column="3" Content="3" Command="{Binding NumberCommand}" CommandParameter="3" Margin="4,4,4,4"/>
+                <Button Style="{StaticResource CalcButtonStyle}" Grid.Row="6" Grid.Column="4" Content="+" Command="{Binding OperatorCommand}" CommandParameter="+" Margin="4,4,4,4"/>
+
+                <Button Style="{StaticResource CalcButtonStyle}" Grid.Row="7" Grid.Column="0" Content="+/-" Command="{Binding OperatorCommand}" CommandParameter="+/-" Margin="4,4,4,4"/>
+                <Button Style="{StaticResource CalcButtonStyle}" Grid.Row="7" Grid.Column="1" Content="0" Command="{Binding NumberCommand}" CommandParameter="0" Grid.ColumnSpan="2" Margin="4,4,4,4"/>
+                <Button Style="{StaticResource CalcButtonStyle}" Grid.Row="7" Grid.Column="3" Content="." Command="{Binding OperatorCommand}" CommandParameter="." Margin="4,4,4,4"/>
+                <Button Style="{StaticResource EqualsButtonStyle}" Grid.Row="7" Grid.Column="4" Content="=" Command="{Binding OperatorCommand}" CommandParameter="=" Margin="4,4,4,4"/>
+            </Grid>
         </Grid>
     </Grid>
+
+
+
+
+
+
 </Window>
