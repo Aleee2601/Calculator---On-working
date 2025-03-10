@@ -5,7 +5,6 @@ E:\Proiecte Personale\Calculator\Calculator\Calculator\bin\Debug\net8.0-windows\
 E:\Proiecte Personale\Calculator\Calculator\Calculator\bin\Debug\net8.0-windows\Calculator.pdb
 E:\Proiecte Personale\Calculator\Calculator\Calculator\obj\Debug\net8.0-windows\Views\MainWindow.g.cs
 E:\Proiecte Personale\Calculator\Calculator\Calculator\obj\Debug\net8.0-windows\App.g.cs
-E:\Proiecte Personale\Calculator\Calculator\Calculator\obj\Debug\net8.0-windows\GeneratedInternalTypeHelper.g.cs
 E:\Proiecte Personale\Calculator\Calculator\Calculator\obj\Debug\net8.0-windows\Calculator_MarkupCompile.cache
 E:\Proiecte Personale\Calculator\Calculator\Calculator\obj\Debug\net8.0-windows\Calculator_MarkupCompile.lref
 E:\Proiecte Personale\Calculator\Calculator\Calculator\obj\Debug\net8.0-windows\Views\MainWindow.baml

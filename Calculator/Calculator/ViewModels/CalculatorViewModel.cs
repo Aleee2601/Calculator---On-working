@@ -1,23 +1,21 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using System.ComponentModel;
 using System.Windows.Input;
 using Calculator.Models;
 
-/// <summary>
-/// Gestionarea starii si comportamentului aplicatiei
-/// 
-/// </summary>
 namespace Calculator.ViewModels
 {
     public class CalculatorViewModel : INotifyPropertyChanged
     {
         private string _displayText = "0";
-        private CalculatorModel _calculator = new CalculatorModel(); // Eroare: trebuie să fie static
-
+        private int _currentBase = 10;
+        private string _currentMode = "Standard";
+        private bool _isProgrammerMode = false;
+        private CalculatorModel _calculator = new CalculatorModel();
 
         public event PropertyChangedEventHandler PropertyChanged;
 
@@ -26,12 +24,41 @@ namespace Calculator.ViewModels
             get => _displayText;
             set
             {
-                _displayText = value;
-                OnPropertyChanged(nameof(DisplayText));
+                if (_displayText != value)
+                {
+                    _displayText = value;
+                    OnPropertyChanged(nameof(DisplayText));
+                }
             }
         }
 
-        // Definire comenzi
+        public string CurrentMode
+        {
+            get => _currentMode;
+            set
+            {
+                if (_currentMode != value)
+                {
+                    _currentMode = value;
+                    OnPropertyChanged(nameof(CurrentMode));
+                }
+            }
+        }
+
+        public bool IsProgrammerMode
+        {
+            get => _isProgrammerMode;
+            set
+            {
+                if (_isProgrammerMode != value)
+                {
+                    _isProgrammerMode = value;
+                    OnPropertyChanged(nameof(IsProgrammerMode));
+                    CurrentMode = _isProgrammerMode ? "Programmer" : "Standard";
+                }
+            }
+        }
+
         public ICommand NumberCommand { get; }
         public ICommand OperatorCommand { get; }
         public ICommand EqualsCommand { get; }
@@ -76,7 +103,7 @@ namespace Calculator.ViewModels
         {
             try
             {
-                string[] parts = _displayText.Split(' '); // Ex: "5 + 3"
+                string[] parts = _displayText.Split(' ');
                 if (parts.Length < 3) return;
 
                 double operand1 = double.Parse(parts[0]);
@@ -94,30 +121,29 @@ namespace Calculator.ViewModels
 
                 DisplayText = result.ToString();
             }
-            catch (Exception ex)
+            catch
             {
                 DisplayText = "Eroare";
             }
         }
 
-
-
         private void Clear() => DisplayText = "0";
         private void ClearEntry() => DisplayText = "0";
-        private void Backspace() { if (_displayText.Length > 0) DisplayText = _displayText[..^1]; }
+        private void Backspace()
+        {
+            if (_displayText.Length > 0)
+                DisplayText = _displayText[..^1];
+        }
+
         private void MemoryClear() => CalculatorModel.MC();
         private void MemoryPlus() => CalculatorModel.MPlus(ref _displayText);
         private void MemoryMinus() => CalculatorModel.MMinus(ref _displayText);
         private void MemoryStore() => CalculatorModel.MS(ref _displayText);
-        private void MemoryRecall() { CalculatorModel.MR(ref _displayText); OnPropertyChanged(nameof(DisplayText)); }
-
-        protected void OnPropertyChanged(string propertyName) =>
-            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
-
-
-
-
-        private int _currentBase = 10;
+        private void MemoryRecall()
+        {
+            CalculatorModel.MR(ref _displayText);
+            OnPropertyChanged(nameof(DisplayText));
+        }
 
         public void SetBase(int newBase)
         {
@@ -134,7 +160,8 @@ namespace Calculator.ViewModels
             }
         }
 
-
-
+        protected void OnPropertyChanged(string propertyName) =>
+            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
     }
 }
+
