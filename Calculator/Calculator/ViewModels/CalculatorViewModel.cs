@@ -1,9 +1,6 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.ComponentModel;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+using System.Globalization;
 using System.Windows.Input;
 using Calculator.Models;
 
@@ -16,6 +13,21 @@ namespace Calculator.ViewModels
         private string _currentMode = "Standard";
         private bool _isProgrammerMode = false;
         private CalculatorModel _calculator = new CalculatorModel();
+
+        // Proprietate nouă pentru font size-ul display-ului
+        private double _displayFontSize = 36;
+        public double DisplayFontSize
+        {
+            get => _displayFontSize;
+            set
+            {
+                if (_displayFontSize != value)
+                {
+                    _displayFontSize = value;
+                    OnPropertyChanged(nameof(DisplayFontSize));
+                }
+            }
+        }
 
         public event PropertyChangedEventHandler PropertyChanged;
 
@@ -31,6 +43,66 @@ namespace Calculator.ViewModels
                 }
             }
         }
+
+        // Metodă de concatenare a cifrelor cu formatare automată și limitare la 16 cifre
+        private void AppendNumber(string number)
+        {
+            // Obține separatorii conform culturii curente
+            string groupSeparator = CultureInfo.CurrentCulture.NumberFormat.NumberGroupSeparator;
+            string decimalSeparator = CultureInfo.CurrentCulture.NumberFormat.NumberDecimalSeparator;
+
+            // Elimină separatorii din textul curent pentru a obține șirul "brut"
+            string unformatted = _displayText.Replace(groupSeparator, "");
+
+            // Dacă se încearcă adăugarea separatorului zecimal și acesta este deja prezent, nu-l adaugă
+            if (number == decimalSeparator && unformatted.Contains(decimalSeparator))
+                return;
+
+            // Dacă DisplayText este "0" și nu se adaugă separatorul zecimal, înlocuiește cu cifra introdusă
+            if (unformatted == "0" && number != decimalSeparator)
+                unformatted = number;
+            else
+                unformatted += number;
+
+            // Extrage doar cifrele (ignorând separatorul zecimal)
+            string digitsOnly = unformatted.Replace(decimalSeparator, "");
+
+            // Dacă adăugarea ar face ca numărul să aibă mai mult de 16 cifre, nu adaugă
+            if (digitsOnly.Length > 16)
+                return;
+
+            // Încearcă să parsezi șirul ca număr
+            if (decimal.TryParse(unformatted, out decimal parsed))
+            {
+                // Dacă șirul conține separatorul zecimal, folosește formatul "N", altfel "N0"
+                if (unformatted.Contains(decimalSeparator))
+                    DisplayText = parsed.ToString("N", CultureInfo.CurrentCulture);
+                else
+                    DisplayText = parsed.ToString("N0", CultureInfo.CurrentCulture);
+            }
+            else
+            {
+                DisplayText = unformatted;
+            }
+
+            // Ajustează automat font size-ul astfel încât numărul să se încadreze:
+            // - Dacă avem 8 sau mai puține cifre: fontul rămâne 36.
+            // - Dacă avem între 9 și 16 cifre: reduce liniar de la 36 la 24.
+            int digitCount = digitsOnly.Length;
+            if (digitCount <= 8)
+            {
+                DisplayFontSize = 36;
+            }
+            else if (digitCount <= 16)
+            {
+                // Calculul liniei: la 8 cifre, fontul este 36; la 16 cifre, fontul devine 24.
+                // Formula: font = 36 - (digitCount - 8) * ((36 - 24) / (16 - 8)) = 36 - 1.5 * (digitCount - 8)
+                DisplayFontSize = 36 - 1.5 * (digitCount - 8);
+            }
+
+            OnPropertyChanged(nameof(DisplayText));
+        }
+
 
         public string CurrentMode
         {
@@ -59,6 +131,7 @@ namespace Calculator.ViewModels
             }
         }
 
+        // Comenzile existente
         public ICommand NumberCommand { get; }
         public ICommand OperatorCommand { get; }
         public ICommand EqualsCommand { get; }
@@ -70,6 +143,12 @@ namespace Calculator.ViewModels
         public ICommand MemoryMinusCommand { get; }
         public ICommand MemoryStoreCommand { get; }
         public ICommand MemoryRecallCommand { get; }
+
+        // Comenzile pentru operațiile suplimentare
+        public ICommand SquareRootCommand { get; }
+        public ICommand SquareCommand { get; }
+        public ICommand NegateCommand { get; }
+        public ICommand ReciprocalCommand { get; }
 
         public CalculatorViewModel()
         {
@@ -84,13 +163,12 @@ namespace Calculator.ViewModels
             MemoryMinusCommand = new RelayCommand(_ => MemoryMinus());
             MemoryStoreCommand = new RelayCommand(_ => MemoryStore());
             MemoryRecallCommand = new RelayCommand(_ => MemoryRecall());
-        }
 
-        private void AppendNumber(string number)
-        {
-            if (_displayText == "0") _displayText = number;
-            else _displayText += number;
-            OnPropertyChanged(nameof(DisplayText));
+            // Inițializare comenzi operații suplimentare
+            SquareRootCommand = new RelayCommand(_ => SquareRoot());
+            SquareCommand = new RelayCommand(_ => Square());
+            NegateCommand = new RelayCommand(_ => Negate());
+            ReciprocalCommand = new RelayCommand(_ => Reciprocal());
         }
 
         private void SetOperator(string op)
@@ -99,6 +177,18 @@ namespace Calculator.ViewModels
             OnPropertyChanged(nameof(DisplayText));
         }
 
+        // Funcții helper pentru conversia numerelor între baze
+        private int ConvertToDecimal(string number, int fromBase)
+        {
+            return Convert.ToInt32(number, fromBase);
+        }
+
+        private string ConvertFromDecimal(int number, int toBase)
+        {
+            return Convert.ToString(number, toBase).ToUpper();
+        }
+
+        // Calculul rezultatului – se face conversia dacă suntem în modul Programmer
         private void CalculateResult()
         {
             try
@@ -106,20 +196,40 @@ namespace Calculator.ViewModels
                 string[] parts = _displayText.Split(' ');
                 if (parts.Length < 3) return;
 
-                double operand1 = double.Parse(parts[0]);
-                string op = parts[1];
-                double operand2 = double.Parse(parts[2]);
-                double result = op switch
+                if (IsProgrammerMode && _currentBase != 10)
                 {
-                    "+" => CalculatorModel.Add(operand1, operand2),
-                    "-" => CalculatorModel.Subtract(operand1, operand2),
-                    "*" => CalculatorModel.Multiply(operand1, operand2),
-                    "/" => CalculatorModel.Divide(operand1, operand2),
-                    "%" => CalculatorModel.Modulo(operand1, operand2),
-                    _ => throw new InvalidOperationException("Operator necunoscut")
-                };
-
-                DisplayText = result.ToString();
+                    int operand1 = ConvertToDecimal(parts[0], _currentBase);
+                    string op = parts[1];
+                    int operand2 = ConvertToDecimal(parts[2], _currentBase);
+                    int result = op switch
+                    {
+                        "+" => (int)CalculatorModel.Add(operand1, operand2),
+                        "-" => (int)CalculatorModel.Subtract(operand1, operand2),
+                        "*" => (int)CalculatorModel.Multiply(operand1, operand2),
+                        "/" => (int)CalculatorModel.Divide(operand1, operand2),
+                        "%" => (int)CalculatorModel.Modulo(operand1, operand2),
+                        _ => throw new InvalidOperationException("Operator necunoscut")
+                    };
+                    DisplayText = ConvertFromDecimal(result, _currentBase);
+                }
+                else
+                {
+                    double operand1 = double.Parse(parts[0]);
+                    string op = parts[1];
+                    double operand2 = double.Parse(parts[2]);
+                    double result = op switch
+                    {
+                        "+" => CalculatorModel.Add(operand1, operand2),
+                        "-" => CalculatorModel.Subtract(operand1, operand2),
+                        "*" => CalculatorModel.Multiply(operand1, operand2),
+                        "/" => CalculatorModel.Divide(operand1, operand2),
+                        "%" => CalculatorModel.Modulo(operand1, operand2),
+                        _ => throw new InvalidOperationException("Operator necunoscut")
+                    };
+                    DisplayText = result.ToString();
+                }
+                // Reformatăm rezultatul (apelul de AppendNumber cu string gol recalculă fontul și formatarea)
+                AppendNumber("");
             }
             catch
             {
@@ -135,23 +245,134 @@ namespace Calculator.ViewModels
                 DisplayText = _displayText[..^1];
         }
 
-        private void MemoryClear() => CalculatorModel.MC();
-        private void MemoryPlus() => CalculatorModel.MPlus(ref _displayText);
-        private void MemoryMinus() => CalculatorModel.MMinus(ref _displayText);
-        private void MemoryStore() => CalculatorModel.MS(ref _displayText);
+        private void MemoryClear()
+        {
+            CalculatorModel.MC();
+            DisplayText = "0";
+            OnPropertyChanged(nameof(DisplayText));
+        }
+        private void MemoryPlus()
+        {
+            CalculatorModel.MPlus(ref _displayText);
+            OnPropertyChanged(nameof(DisplayText));
+        }
+        private void MemoryMinus()
+        {
+            CalculatorModel.MMinus(ref _displayText);
+            OnPropertyChanged(nameof(DisplayText));
+        }
+        private void MemoryStore()
+        {
+            CalculatorModel.MS(ref _displayText);
+            OnPropertyChanged(nameof(DisplayText));
+        }
         private void MemoryRecall()
         {
             CalculatorModel.MR(ref _displayText);
             OnPropertyChanged(nameof(DisplayText));
         }
 
+        // Operații suplimentare – aplică conversiile dacă suntem în modul Programmer
+        private void Square()
+        {
+            try
+            {
+                if (IsProgrammerMode && _currentBase != 10)
+                {
+                    int value = ConvertToDecimal(DisplayText, _currentBase);
+                    int result = (int)CalculatorModel.Pow(value);
+                    DisplayText = ConvertFromDecimal(result, _currentBase);
+                }
+                else
+                {
+                    double value = double.Parse(DisplayText);
+                    double result = CalculatorModel.Pow(value);
+                    DisplayText = result.ToString();
+                }
+            }
+            catch
+            {
+                DisplayText = "Eroare";
+            }
+        }
+
+        private void SquareRoot()
+        {
+            try
+            {
+                if (IsProgrammerMode && _currentBase != 10)
+                {
+                    int value = ConvertToDecimal(DisplayText, _currentBase);
+                    int result = (int)CalculatorModel.Sqrt(value);
+                    DisplayText = ConvertFromDecimal(result, _currentBase);
+                }
+                else
+                {
+                    double value = double.Parse(DisplayText);
+                    double result = CalculatorModel.Sqrt(value);
+                    DisplayText = result.ToString();
+                }
+            }
+            catch
+            {
+                DisplayText = "Eroare";
+            }
+        }
+
+        private void Negate()
+        {
+            try
+            {
+                if (IsProgrammerMode && _currentBase != 10)
+                {
+                    int value = ConvertToDecimal(DisplayText, _currentBase);
+                    int result = (int)CalculatorModel.Negate(value);
+                    DisplayText = ConvertFromDecimal(result, _currentBase);
+                }
+                else
+                {
+                    double value = double.Parse(DisplayText);
+                    double result = CalculatorModel.Negate(value);
+                    DisplayText = result.ToString();
+                }
+            }
+            catch
+            {
+                DisplayText = "Eroare";
+            }
+        }
+
+        private void Reciprocal()
+        {
+            try
+            {
+                if (IsProgrammerMode && _currentBase != 10)
+                {
+                    int value = ConvertToDecimal(DisplayText, _currentBase);
+                    int result = (int)CalculatorModel.Reciprocal(value);
+                    DisplayText = ConvertFromDecimal(result, _currentBase);
+                }
+                else
+                {
+                    double value = double.Parse(DisplayText);
+                    double result = CalculatorModel.Reciprocal(value);
+                    DisplayText = result.ToString();
+                }
+            }
+            catch
+            {
+                DisplayText = "Eroare";
+            }
+        }
+
+        // Funcție pentru setarea bazei de afișare – convertește numărul din baza curentă în noua bază
         public void SetBase(int newBase)
         {
             try
             {
-                int decimalValue = Convert.ToInt32(DisplayText, _currentBase);
+                int decimalValue = ConvertToDecimal(DisplayText, _currentBase);
                 _currentBase = newBase;
-                DisplayText = Convert.ToString(decimalValue, newBase).ToUpper();
+                DisplayText = ConvertFromDecimal(decimalValue, newBase);
                 OnPropertyChanged(nameof(DisplayText));
             }
             catch
@@ -163,11 +384,7 @@ namespace Calculator.ViewModels
         protected void OnPropertyChanged(string propertyName) =>
             PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
 
-
-
-
-
-
+        // Proprietăți suplimentare pentru afișarea valorilor în modul Programmer
         private string _hexValue = "0";
         public string HexValue
         {
@@ -194,7 +411,6 @@ namespace Calculator.ViewModels
                 }
             }
         }
-
         private string _octValue = "0";
         public string OctValue
         {
@@ -208,7 +424,6 @@ namespace Calculator.ViewModels
                 }
             }
         }
-
         private string _binValue = "0";
         public string BinValue
         {
@@ -222,11 +437,5 @@ namespace Calculator.ViewModels
                 }
             }
         }
-
-       
-
-
-
     }
 }
-

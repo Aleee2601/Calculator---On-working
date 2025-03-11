@@ -19,3 +19,4 @@ E:\Proiecte Personale\Calculator\Calculator\Calculator\obj\Debug\net8.0-windows\
 E:\Proiecte Personale\Calculator\Calculator\Calculator\obj\Debug\net8.0-windows\Calculator.pdb
 E:\Proiecte Personale\Calculator\Calculator\Calculator\obj\Debug\net8.0-windows\Calculator.genruntimeconfig.cache
 E:\Proiecte Personale\Calculator\Calculator\Calculator\obj\Debug\net8.0-windows\ref\Calculator.dll
+E:\Proiecte Personale\Calculator\Calculator\Calculator\obj\Debug\net8.0-windows\GeneratedInternalTypeHelper.g.cs

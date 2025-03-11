@@ -5,8 +5,15 @@
         Title="Calculator" Height="678" Width="350"
         Background="#1E1E1E" Foreground="White"
         FontFamily="Segoe UI">
+    
 
+    
+    
+    
     <Window.Resources>
+        <!-- Asigură-te că ai definit aceste convertoare (sau adaugă-le în App.xaml) -->
+        <local:BoolToFontWeightConverter x:Key="BoolToFontWeightConverter" />
+        <local:BoolToVisibilityConverter x:Key="BoolToVisibilityConverter" />
 
         <!-- General Button Style -->
         <Style TargetType="Button" x:Key="CalcButtonStyle">
@@ -27,63 +34,32 @@
                     </ControlTemplate>
                 </Setter.Value>
             </Setter>
-
-            <!-- Add a Trigger to recolor the button if IsEnabled=False -->
             <Style.Triggers>
                 <Trigger Property="IsEnabled" Value="False">
                     <Setter Property="Background" Value="#AAAAAA"/>
-                    <!-- a light gray background -->
                     <Setter Property="Foreground" Value="#666666"/>
-                    <!-- a darker text for contrast -->
                 </Trigger>
             </Style.Triggers>
         </Style>
 
-
-        <Style x:Key="ModeToggleButtonStyle" TargetType="ToggleButton">
-            <Setter Property="FontSize" Value="16"/>
-            <Setter Property="Foreground" Value="White"/>
-            <Setter Property="Background" Value="Transparent"/>
-            <Setter Property="BorderThickness" Value="0"/>
-            <Setter Property="Padding" Value="4,2"/>
-            <Setter Property="Cursor" Value="Hand"/>
-            <Setter Property="Template">
-                <Setter.Value>
-                    <ControlTemplate TargetType="ToggleButton">
-                        <StackPanel Orientation="Vertical">
-                            <TextBlock Text="{TemplateBinding Content}"
-                                       HorizontalAlignment="Center"
-                                       FontWeight="{Binding IsChecked, RelativeSource={RelativeSource TemplatedParent}, Converter={StaticResource BoolToFontWeightConverter}}"/>
-                            <Rectangle Height="2"
-                                       Fill="#0078D7"
-                                       Visibility="{Binding IsChecked, RelativeSource={RelativeSource TemplatedParent}, Converter={StaticResource BoolToVisibilityConverter}}"/>
-                        </StackPanel>
-                    </ControlTemplate>
-                </Setter.Value>
-            </Setter>
-        </Style>
-
+        <!-- Equals Button Style -->
         <Style TargetType="Button" x:Key="EqualsButtonStyle" BasedOn="{StaticResource CalcButtonStyle}">
             <Setter Property="Background" Value="#0078D7"/>
             <Setter Property="Foreground" Value="White"/>
         </Style>
 
+        <!-- RadioButton Style fără cerc -->
         <Style TargetType="RadioButton" x:Key="NoCircleRadioButtonStyle">
-            <!-- Default appearance -->
             <Setter Property="Foreground" Value="White"/>
             <Setter Property="FontWeight" Value="Normal"/>
             <Setter Property="BorderThickness" Value="0"/>
-            <!-- Replace the default control template so there's no circle -->
             <Setter Property="Template">
                 <Setter.Value>
                     <ControlTemplate TargetType="RadioButton">
-                        <!-- Just show whatever Content is inside the RadioButton -->
-                        <ContentPresenter />
+                        <ContentPresenter/>
                     </ControlTemplate>
                 </Setter.Value>
             </Setter>
-
-            <!-- Triggers for IsChecked (change text color and weight) -->
             <Style.Triggers>
                 <Trigger Property="IsChecked" Value="True">
                     <Setter Property="Foreground" Value="#0078D7"/>
@@ -91,34 +67,26 @@
                 </Trigger>
             </Style.Triggers>
         </Style>
-
     </Window.Resources>
 
-
     <Grid Margin="10">
-        <!-- Define two rows:
-             Row 0 -> top area with Mode + Display
-             Row 1 -> main content area (Standard / Programmer grids)
-        -->
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto"/>
             <RowDefinition Height="*"/>
         </Grid.RowDefinitions>
 
-        <!-- TOP SECTION: Mode + Display -->
+        <!-- TOP SECTION: Mod + Display -->
         <Grid Grid.Row="0">
             <Grid.RowDefinitions>
                 <RowDefinition Height="Auto"/>
                 <RowDefinition Height="Auto"/>
             </Grid.RowDefinitions>
-
             <Grid Grid.Row="0">
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="Auto"/>
                     <ColumnDefinition Width="Auto"/>
                     <ColumnDefinition Width="*"/>
                 </Grid.ColumnDefinitions>
-
                 <!-- Hamburger Button -->
                 <Button Content="☰"
                         FontSize="18"
@@ -129,48 +97,46 @@
                         Foreground="White"
                         Cursor="Hand"
                         Click="Hamburger_Click"
-                        VerticalAlignment="Top" />
-
-                <!-- Mode Label -->
+                        VerticalAlignment="Top"/>
+                <!-- Labelul modului -->
                 <TextBlock Grid.Column="1"
                            Text="{Binding CurrentMode}"
                            VerticalAlignment="Center"
                            FontSize="18"
                            FontWeight="Bold"
                            Margin="10,0"
-                           Foreground="White" />
+                           Foreground="White"/>
             </Grid>
-
-            <!-- Display TextBox below the hamburger/mode label row -->
+            <!-- Display-ul Calculatorului -->
             <TextBox x:Name="txtDisplay"
-                     Grid.Row="1"
-                     Text="{Binding DisplayText, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
-                     FontSize="36"
-                     Background="#1E1E1E"
-                     Foreground="White"
-                     TextAlignment="Right"
-                     Padding="10"
-                     IsReadOnly="True"
-                     BorderThickness="0"
-                     VerticalContentAlignment="Center"
-                     Height="80"
-                     Margin="0,10,0,10"
-                     TextChanged="txtDisplay_TextChanged"
-                     HorizontalAlignment="Stretch"/>
+                 Grid.Row="1"
+                 Text="{Binding DisplayText, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                 FontSize="{Binding DisplayFontSize}"
+                 Background="#1E1E1E"
+                 Foreground="White"
+                 TextAlignment="Right"
+                 Padding="10"
+                 IsReadOnly="True"
+                 BorderThickness="0"
+                 VerticalContentAlignment="Center"
+                 Height="80"
+                 Margin="0,10,0,10"
+                 TextChanged="txtDisplay_TextChanged"
+                 HorizontalAlignment="Stretch"/>    
+
+
+
         </Grid>
 
-
         <!-- MAIN CONTENT SECTION -->
-        <Grid Grid.Row="1" Grid.ColumnSpan="3">
-
-            <!-- STANDARD MODE GRID -->
+        <Grid Grid.Row="1">
+            <!-- Standard Mode Grid -->
             <Grid x:Name="StandardGrid" Visibility="Collapsed">
                 <Grid.RowDefinitions>
                     <RowDefinition Height="Auto"/>
                     <RowDefinition Height="*"/>
                 </Grid.RowDefinitions>
-
-                <!-- MEMORY BUTTONS (top row) -->
+                <!-- Rândul cu butoanele de memorie -->
                 <Grid Grid.Row="0">
                     <Grid.ColumnDefinitions>
                         <ColumnDefinition Width="*"/>
@@ -180,7 +146,6 @@
                         <ColumnDefinition Width="*"/>
                         <ColumnDefinition Width="*"/>
                     </Grid.ColumnDefinitions>
-
                     <Button Style="{StaticResource CalcButtonStyle}" Grid.Column="0" Content="MC" Command="{Binding MemoryClearCommand}"/>
                     <Button Style="{StaticResource CalcButtonStyle}" Grid.Column="1" Content="MR" Command="{Binding MemoryRecallCommand}"/>
                     <Button Style="{StaticResource CalcButtonStyle}" Grid.Column="2" Content="M+" Command="{Binding MemoryPlusCommand}"/>
@@ -188,8 +153,7 @@
                     <Button Style="{StaticResource CalcButtonStyle}" Grid.Column="4" Content="MS"/>
                     <Button Style="{StaticResource CalcButtonStyle}" Grid.Column="5" Content="M˅"/>
                 </Grid>
-
-                <!-- MAIN BUTTONS GRID (6 rows, 4 columns) -->
+                <!-- Grid-ul principal cu butoane -->
                 <Grid Grid.Row="1">
                     <Grid.RowDefinitions>
                         <RowDefinition/>
@@ -200,70 +164,55 @@
                         <RowDefinition/>
                     </Grid.RowDefinitions>
                     <Grid.ColumnDefinitions>
-                        <ColumnDefinition Width="*"/>
-                        <ColumnDefinition Width="*"/>
-                        <ColumnDefinition Width="*"/>
-                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition/>
+                        <ColumnDefinition/>
+                        <ColumnDefinition/>
+                        <ColumnDefinition/>
                     </Grid.ColumnDefinitions>
-
-                    <!-- Row 0 -->
-                    <Button Style="{StaticResource CalcButtonStyle}" Grid.Row="0" Grid.Column="0" Content="%" CommandParameter="%"/>
+                    <!-- Row 0: Operații de bază -->
+                    <Button Style="{StaticResource CalcButtonStyle}" Grid.Row="0" Grid.Column="0" Content="%" Command="{Binding OperatorCommand}" CommandParameter="%"/>
                     <Button Style="{StaticResource CalcButtonStyle}" Grid.Row="0" Grid.Column="1" Content="CE" Command="{Binding ClearEntryCommand}"/>
                     <Button Style="{StaticResource CalcButtonStyle}" Grid.Row="0" Grid.Column="2" Content="C" Command="{Binding ClearCommand}"/>
                     <Button Style="{StaticResource CalcButtonStyle}" Grid.Row="0" Grid.Column="3" Content="⌫" Command="{Binding BackspaceCommand}"/>
-
-                    <!-- Row 1 -->
-                    <Button Style="{StaticResource CalcButtonStyle}" Grid.Row="1" Grid.Column="0" Content="1/x" CommandParameter="1/x"/>
-                    <Button Style="{StaticResource CalcButtonStyle}" Grid.Row="1" Grid.Column="1" Content="x²" CommandParameter="pow"/>
-                    <Button Style="{StaticResource CalcButtonStyle}" Grid.Row="1" Grid.Column="2" Content="√x" CommandParameter="sqrt"/>
-                    <Button Style="{StaticResource CalcButtonStyle}" Grid.Row="1" Grid.Column="3" Content="÷" CommandParameter="/"/>
-
-                    <!-- Row 2 -->
-                    <Button Style="{StaticResource CalcButtonStyle}" Grid.Row="2" Grid.Column="0" Content="7" CommandParameter="7"/>
-                    <Button Style="{StaticResource CalcButtonStyle}" Grid.Row="2" Grid.Column="1" Content="8" CommandParameter="8"/>
-                    <Button Style="{StaticResource CalcButtonStyle}" Grid.Row="2" Grid.Column="2" Content="9" CommandParameter="9"/>
-                    <Button Style="{StaticResource CalcButtonStyle}" Grid.Row="2" Grid.Column="3" Content="×" CommandParameter="*"/>
-
-                    <!-- Row 3 -->
-                    <Button Style="{StaticResource CalcButtonStyle}" Grid.Row="3" Grid.Column="0" Content="4" CommandParameter="4"/>
-                    <Button Style="{StaticResource CalcButtonStyle}" Grid.Row="3" Grid.Column="1" Content="5" CommandParameter="5"/>
-                    <Button Style="{StaticResource CalcButtonStyle}" Grid.Row="3" Grid.Column="2" Content="6" CommandParameter="6"/>
-                    <Button Style="{StaticResource CalcButtonStyle}" Grid.Row="3" Grid.Column="3" Content="−" CommandParameter="-"/>
-
-                    <!-- Row 4 -->
-                    <Button Style="{StaticResource CalcButtonStyle}" Grid.Row="4" Grid.Column="0" Content="1" CommandParameter="1"/>
-                    <Button Style="{StaticResource CalcButtonStyle}" Grid.Row="4" Grid.Column="1" Content="2" CommandParameter="2"/>
-                    <Button Style="{StaticResource CalcButtonStyle}" Grid.Row="4" Grid.Column="2" Content="3" CommandParameter="3"/>
-                    <Button Style="{StaticResource CalcButtonStyle}" Grid.Row="4" Grid.Column="3" Content="+" CommandParameter="+"/>
-
-                    <!-- Row 5 -->
-                    <Button Style="{StaticResource CalcButtonStyle}" Grid.Row="5" Grid.Column="0" Content="±" CommandParameter="+/-"/>
-                    <Button Style="{StaticResource CalcButtonStyle}" Grid.Row="5" Grid.Column="1" Content="0" CommandParameter="0"/>
-                    <Button Style="{StaticResource CalcButtonStyle}" Grid.Row="5" Grid.Column="2" Content="." CommandParameter="."/>
-                    <Button Style="{StaticResource EqualsButtonStyle}" Grid.Row="5" Grid.Column="3" Content="=" CommandParameter="="/>
+                    <!-- Row 1: Operații speciale -->
+                    <Button Style="{StaticResource CalcButtonStyle}" Grid.Row="1" Grid.Column="0" Content="1/x" Command="{Binding ReciprocalCommand}"/>
+                    <Button Style="{StaticResource CalcButtonStyle}" Grid.Row="1" Grid.Column="1" Content="x²" Command="{Binding SquareCommand}"/>
+                    <Button Style="{StaticResource CalcButtonStyle}" Grid.Row="1" Grid.Column="2" Content="√x" Command="{Binding SquareRootCommand}"/>
+                    <Button Style="{StaticResource CalcButtonStyle}" Grid.Row="1" Grid.Column="3" Content="÷" Command="{Binding OperatorCommand}" CommandParameter="/"/>
+                    <!-- Row 2: Butoane numerice și operator multiplicare -->
+                    <Button Style="{StaticResource CalcButtonStyle}" Grid.Row="2" Grid.Column="0" Content="7" Command="{Binding NumberCommand}" CommandParameter="7"/>
+                    <Button Style="{StaticResource CalcButtonStyle}" Grid.Row="2" Grid.Column="1" Content="8" Command="{Binding NumberCommand}" CommandParameter="8"/>
+                    <Button Style="{StaticResource CalcButtonStyle}" Grid.Row="2" Grid.Column="2" Content="9" Command="{Binding NumberCommand}" CommandParameter="9"/>
+                    <Button Style="{StaticResource CalcButtonStyle}" Grid.Row="2" Grid.Column="3" Content="×" Command="{Binding OperatorCommand}" CommandParameter="*"/>
+                    <!-- Row 3: Butoane numerice și operator scădere -->
+                    <Button Style="{StaticResource CalcButtonStyle}" Grid.Row="3" Grid.Column="0" Content="4" Command="{Binding NumberCommand}" CommandParameter="4"/>
+                    <Button Style="{StaticResource CalcButtonStyle}" Grid.Row="3" Grid.Column="1" Content="5" Command="{Binding NumberCommand}" CommandParameter="5"/>
+                    <Button Style="{StaticResource CalcButtonStyle}" Grid.Row="3" Grid.Column="2" Content="6" Command="{Binding NumberCommand}" CommandParameter="6"/>
+                    <Button Style="{StaticResource CalcButtonStyle}" Grid.Row="3" Grid.Column="3" Content="−" Command="{Binding OperatorCommand}" CommandParameter="-"/>
+                    <!-- Row 4: Butoane numerice și operator adunare -->
+                    <Button Style="{StaticResource CalcButtonStyle}" Grid.Row="4" Grid.Column="0" Content="1" Command="{Binding NumberCommand}" CommandParameter="1"/>
+                    <Button Style="{StaticResource CalcButtonStyle}" Grid.Row="4" Grid.Column="1" Content="2" Command="{Binding NumberCommand}" CommandParameter="2"/>
+                    <Button Style="{StaticResource CalcButtonStyle}" Grid.Row="4" Grid.Column="2" Content="3" Command="{Binding NumberCommand}" CommandParameter="3"/>
+                    <Button Style="{StaticResource CalcButtonStyle}" Grid.Row="4" Grid.Column="3" Content="+" Command="{Binding OperatorCommand}" CommandParameter="+"/>
+                    <!-- Row 5: Semn, zero, punct și egal -->
+                    <Button Style="{StaticResource CalcButtonStyle}" Grid.Row="5" Grid.Column="0" Content="±" Command="{Binding NegateCommand}"/>
+                    <Button Style="{StaticResource CalcButtonStyle}" Grid.Row="5" Grid.Column="1" Content="0" Command="{Binding NumberCommand}" CommandParameter="0"/>
+                    <Button Style="{StaticResource CalcButtonStyle}" Grid.Row="5" Grid.Column="2" Content="." Command="{Binding NumberCommand}" CommandParameter="."/>
+                    <Button Style="{StaticResource EqualsButtonStyle}" Grid.Row="5" Grid.Column="3" Content="=" Command="{Binding EqualsCommand}"/>
                 </Grid>
             </Grid>
 
-            <!-- PROGRAMMER MODE GRID -->
+            <!-- PROGRAMMER MODE GRID (similar structură, de exemplu) -->
             <Grid x:Name="ProgrammerGrid" Visibility="Visible">
                 <Grid.RowDefinitions>
                     <RowDefinition Height="Auto"/>
                     <RowDefinition Height="*"/>
                 </Grid.RowDefinitions>
-
-                <!-- Only one column here for simplicity -->
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="*"/>
                 </Grid.ColumnDefinitions>
-
-                <!-- A vertical StackPanel to hold the four RadioButtons for HEX / DEC / OCT / BIN -->
-                <StackPanel Grid.Row="0"
-                            Grid.Column="0"
-                            Orientation="Vertical"
-                            Margin="0,0,0,10"
-                            HorizontalAlignment="Left">
-
-                    <!-- HEX RadioButton (with combined label + numeric text) -->
+                <!-- Selecție bază numerică -->
+                <StackPanel Grid.Row="0" Orientation="Vertical" Margin="0,0,0,10" HorizontalAlignment="Left">
                     <RadioButton x:Name="btnHex"
                                  Style="{StaticResource NoCircleRadioButtonStyle}"
                                  Tag="16"
@@ -271,63 +220,47 @@
                                  Checked="Base_Checked"
                                  Margin="0,5,0,0">
                         <StackPanel Orientation="Horizontal">
-                            <TextBlock Text="HEX" Width="40" />
-                            <TextBlock Text="{Binding HexValue}" />
+                            <TextBlock Text="HEX" Width="40"/>
+                            <TextBlock Text="{Binding HexValue}"/>
                         </StackPanel>
-                        
                     </RadioButton>
-
-                    <!-- DEC RadioButton -->
                     <RadioButton x:Name="btnDec"
-             Style="{StaticResource NoCircleRadioButtonStyle}"
-             Tag="10"
-             GroupName="BaseGroup"
-             Checked="Base_Checked"
-             Margin="0,5,0,0">
+                                 Style="{StaticResource NoCircleRadioButtonStyle}"
+                                 Tag="10"
+                                 IsChecked="True"
+                                 GroupName="BaseGroup"
+                                 Checked="Base_Checked"
+                                 Margin="0,5,0,0">
                         <StackPanel Orientation="Horizontal">
                             <TextBlock Text="DEC" Width="40"/>
-                            <!-- BIND to DecValue here -->
                             <TextBlock Text="{Binding DecValue}"/>
                         </StackPanel>
                     </RadioButton>
-
-                    <!-- OCT RadioButton -->
                     <RadioButton x:Name="btnOct"
-             Style="{StaticResource NoCircleRadioButtonStyle}"
-             Tag="8"
-             GroupName="BaseGroup"
-             Checked="Base_Checked"
-             Margin="0,5,0,0">
+                                 Style="{StaticResource NoCircleRadioButtonStyle}"
+                                 Tag="8"
+                                 GroupName="BaseGroup"
+                                 Checked="Base_Checked"
+                                 Margin="0,5,0,0">
                         <StackPanel Orientation="Horizontal">
                             <TextBlock Text="OCT" Width="40"/>
-                            <!-- BIND to OctValue -->
                             <TextBlock Text="{Binding OctValue}"/>
                         </StackPanel>
                     </RadioButton>
-
-                    <!-- BIN RadioButton -->
                     <RadioButton x:Name="btnBin"
-             Style="{StaticResource NoCircleRadioButtonStyle}"
-             Tag="2"
-             GroupName="BaseGroup"
-             Checked="Base_Checked"
-             Margin="0,5,0,0">
+                                 Style="{StaticResource NoCircleRadioButtonStyle}"
+                                 Tag="2"
+                                 GroupName="BaseGroup"
+                                 Checked="Base_Checked"
+                                 Margin="0,5,0,0">
                         <StackPanel Orientation="Horizontal">
                             <TextBlock Text="BIN" Width="40"/>
-                            <!-- BIND to BinValue -->
                             <TextBlock Text="{Binding BinValue}"/>
                         </StackPanel>
                     </RadioButton>
-
-
                 </StackPanel>
-
-                <!-- Right side: memory buttons + main button grid -->
-                <StackPanel Margin="0,10,0,10"
-                            Grid.Row="1"
-                            Grid.ColumnSpan="1">
-
-                    <!-- Memory buttons -->
+                <!-- Memorie și grid-ul principal -->
+                <StackPanel Grid.Row="1" Margin="0,10,0,0">
                     <UniformGrid Columns="6" Margin="0,0,0,10">
                         <Button Content="MC" Command="{Binding MemoryClearCommand}" Style="{StaticResource CalcButtonStyle}"/>
                         <Button Content="MR" Command="{Binding MemoryRecallCommand}" Style="{StaticResource CalcButtonStyle}"/>
@@ -336,9 +269,7 @@
                         <Button Content="MS" Style="{StaticResource CalcButtonStyle}"/>
                         <Button Content="M˅" Style="{StaticResource CalcButtonStyle}"/>
                     </UniformGrid>
-
-                    <!-- Main 6x5 button grid -->
-                    <Grid Height="314">
+                    <Grid Height="344">
                         <Grid.RowDefinitions>
                             <RowDefinition/>
                             <RowDefinition/>
@@ -354,48 +285,43 @@
                             <ColumnDefinition/>
                             <ColumnDefinition/>
                         </Grid.ColumnDefinitions>
-
+                        <!-- Exemplu de butoane pentru modul Programmer -->
                         <!-- Row 0 -->
-                        <Button Style="{StaticResource CalcButtonStyle}" Grid.Row="0" Grid.Column="0" Content="A" CommandParameter="A"/>
-                        <Button Style="{StaticResource CalcButtonStyle}" Grid.Row="0" Grid.Column="1" Content="%" CommandParameter="%"/>
+                        <Button Style="{StaticResource CalcButtonStyle}" Grid.Row="0" Grid.Column="0" Content="A" Command="{Binding NumberCommand}" CommandParameter="A"/>
+                        <Button Style="{StaticResource CalcButtonStyle}" Grid.Row="0" Grid.Column="1" Content="%" Command="{Binding OperatorCommand}" CommandParameter="%"/>
                         <Button Style="{StaticResource CalcButtonStyle}" Grid.Row="0" Grid.Column="2" Content="CE" Command="{Binding ClearEntryCommand}"/>
                         <Button Style="{StaticResource CalcButtonStyle}" Grid.Row="0" Grid.Column="3" Content="CLR" Command="{Binding ClearCommand}"/>
                         <Button Style="{StaticResource CalcButtonStyle}" Grid.Row="0" Grid.Column="4" Content="⌫" Command="{Binding BackspaceCommand}"/>
-
-                        <!-- Row 1 -->  
-                        <Button Style="{StaticResource CalcButtonStyle}" Grid.Row="1" Grid.Column="0" Content="B" CommandParameter="B"/>
-                        <Button Style="{StaticResource CalcButtonStyle}" Grid.Row="1" Grid.Column="1" Content="1/x" CommandParameter="1/x"/>
-                        <Button Style="{StaticResource CalcButtonStyle}" Grid.Row="1" Grid.Column="2" Content="x²" CommandParameter="pow"/>
-                        <Button Style="{StaticResource CalcButtonStyle}" Grid.Row="1" Grid.Column="3" Content="√x" CommandParameter="sqrt"/>
-                        <Button Style="{StaticResource CalcButtonStyle}" Grid.Row="1" Grid.Column="4" Content="÷" CommandParameter="/"/>
-
+                        <!-- Row 1 -->
+                        <Button Style="{StaticResource CalcButtonStyle}" Grid.Row="1" Grid.Column="0" Content="B" Command="{Binding NumberCommand}" CommandParameter="B"/>
+                        <Button Style="{StaticResource CalcButtonStyle}" Grid.Row="1" Grid.Column="1" Content="1/x" Command="{Binding ReciprocalCommand}"/>
+                        <Button Style="{StaticResource CalcButtonStyle}" Grid.Row="1" Grid.Column="2" Content="x²" Command="{Binding SquareCommand}"/>
+                        <Button Style="{StaticResource CalcButtonStyle}" Grid.Row="1" Grid.Column="3" Content="√x" Command="{Binding SquareRootCommand}"/>
+                        <Button Style="{StaticResource CalcButtonStyle}" Grid.Row="1" Grid.Column="4" Content="÷" Command="{Binding OperatorCommand}" CommandParameter="/"/>
                         <!-- Row 2 -->
-                        <Button Style="{StaticResource CalcButtonStyle}" Grid.Row="2" Grid.Column="0" Content="C" CommandParameter="C"/>
-                        <Button Style="{StaticResource CalcButtonStyle}" Grid.Row="2" Grid.Column="1" Content="7" CommandParameter="7" Click="Button_Click"/>
-                        <Button Style="{StaticResource CalcButtonStyle}" Grid.Row="2" Grid.Column="2" Content="8" CommandParameter="8"/>
-                        <Button Style="{StaticResource CalcButtonStyle}" Grid.Row="2" Grid.Column="3" Content="9" CommandParameter="9"/>
-                        <Button Style="{StaticResource CalcButtonStyle}" Grid.Row="2" Grid.Column="4" Content="×" CommandParameter="*"/>
-
+                        <Button Style="{StaticResource CalcButtonStyle}" Grid.Row="2" Grid.Column="0" Content="C" Command="{Binding NumberCommand}" CommandParameter="C"/>
+                        <Button Style="{StaticResource CalcButtonStyle}" Grid.Row="2" Grid.Column="1" Content="7" Command="{Binding NumberCommand}" CommandParameter="7"/>
+                        <Button Style="{StaticResource CalcButtonStyle}" Grid.Row="2" Grid.Column="2" Content="8" Command="{Binding NumberCommand}" CommandParameter="8"/>
+                        <Button Style="{StaticResource CalcButtonStyle}" Grid.Row="2" Grid.Column="3" Content="9" Command="{Binding NumberCommand}" CommandParameter="9"/>
+                        <Button Style="{StaticResource CalcButtonStyle}" Grid.Row="2" Grid.Column="4" Content="×" Command="{Binding OperatorCommand}" CommandParameter="*"/>
                         <!-- Row 3 -->
-                        <Button Style="{StaticResource CalcButtonStyle}" Grid.Row="3" Grid.Column="0" Content="D" CommandParameter="D"/>
-                        <Button Style="{StaticResource CalcButtonStyle}" Grid.Row="3" Grid.Column="1" Content="4" CommandParameter="4"/>
-                        <Button Style="{StaticResource CalcButtonStyle}" Grid.Row="3" Grid.Column="2" Content="5" CommandParameter="5"/>
-                        <Button Style="{StaticResource CalcButtonStyle}" Grid.Row="3" Grid.Column="3" Content="6" CommandParameter="6"/>
-                        <Button Style="{StaticResource CalcButtonStyle}" Grid.Row="3" Grid.Column="4" Content="−" CommandParameter="-"/>
-
+                        <Button Style="{StaticResource CalcButtonStyle}" Grid.Row="3" Grid.Column="0" Content="D" Command="{Binding NumberCommand}" CommandParameter="D"/>
+                        <Button Style="{StaticResource CalcButtonStyle}" Grid.Row="3" Grid.Column="1" Content="4" Command="{Binding NumberCommand}" CommandParameter="4"/>
+                        <Button Style="{StaticResource CalcButtonStyle}" Grid.Row="3" Grid.Column="2" Content="5" Command="{Binding NumberCommand}" CommandParameter="5"/>
+                        <Button Style="{StaticResource CalcButtonStyle}" Grid.Row="3" Grid.Column="3" Content="6" Command="{Binding NumberCommand}" CommandParameter="6"/>
+                        <Button Style="{StaticResource CalcButtonStyle}" Grid.Row="3" Grid.Column="4" Content="−" Command="{Binding OperatorCommand}" CommandParameter="-"/>
                         <!-- Row 4 -->
-                        <Button Style="{StaticResource CalcButtonStyle}" Grid.Row="4" Grid.Column="0" Content="E" CommandParameter="E"/>
-                        <Button Style="{StaticResource CalcButtonStyle}" Grid.Row="4" Grid.Column="1" Content="1" CommandParameter="1"/>
-                        <Button Style="{StaticResource CalcButtonStyle}" Grid.Row="4" Grid.Column="2" Content="2" CommandParameter="2"/>
-                        <Button Style="{StaticResource CalcButtonStyle}" Grid.Row="4" Grid.Column="3" Content="3" CommandParameter="3"/>
-                        <Button Style="{StaticResource CalcButtonStyle}" Grid.Row="4" Grid.Column="4" Content="+" CommandParameter="+"/>
-
+                        <Button Style="{StaticResource CalcButtonStyle}" Grid.Row="4" Grid.Column="0" Content="E" Command="{Binding NumberCommand}" CommandParameter="E"/>
+                        <Button Style="{StaticResource CalcButtonStyle}" Grid.Row="4" Grid.Column="1" Content="1" Command="{Binding NumberCommand}" CommandParameter="1"/>
+                        <Button Style="{StaticResource CalcButtonStyle}" Grid.Row="4" Grid.Column="2" Content="2" Command="{Binding NumberCommand}" CommandParameter="2"/>
+                        <Button Style="{StaticResource CalcButtonStyle}" Grid.Row="4" Grid.Column="3" Content="3" Command="{Binding NumberCommand}" CommandParameter="3"/>
+                        <Button Style="{StaticResource CalcButtonStyle}" Grid.Row="4" Grid.Column="4" Content="+" Command="{Binding OperatorCommand}" CommandParameter="+"/>
                         <!-- Row 5 -->
-                        <Button Style="{StaticResource CalcButtonStyle}" Grid.Row="5" Grid.Column="0" Content="F" CommandParameter="F"/>
-                        <Button Style="{StaticResource CalcButtonStyle}" Grid.Row="5" Grid.Column="1" Content="±" CommandParameter="+/-"/>
-                        <Button Style="{StaticResource CalcButtonStyle}" Grid.Row="5" Grid.Column="2" Content="0" CommandParameter="0"/>
-                        <Button Style="{StaticResource CalcButtonStyle}" Grid.Row="5" Grid.Column="3" Content="." CommandParameter="."/>
-                        <Button Style="{StaticResource EqualsButtonStyle}" Grid.Row="5" Grid.Column="4" Content="=" CommandParameter="="/>
+                        <Button Style="{StaticResource CalcButtonStyle}" Grid.Row="5" Grid.Column="0" Content="F" Command="{Binding NumberCommand}" CommandParameter="F"/>
+                        <Button Style="{StaticResource CalcButtonStyle}" Grid.Row="5" Grid.Column="1" Content="±" Command="{Binding NegateCommand}"/>
+                        <Button Style="{StaticResource CalcButtonStyle}" Grid.Row="5" Grid.Column="2" Content="0" Command="{Binding NumberCommand}" CommandParameter="0"/>
+                        <Button Style="{StaticResource CalcButtonStyle}" Grid.Row="5" Grid.Column="3" Content="." Command="{Binding NumberCommand}" CommandParameter="."/>
+                        <Button Style="{StaticResource EqualsButtonStyle}" Grid.Row="5" Grid.Column="4" Content="=" Command="{Binding EqualsCommand}"/>
                     </Grid>
                 </StackPanel>
             </Grid>

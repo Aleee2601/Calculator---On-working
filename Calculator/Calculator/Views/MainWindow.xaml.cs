@@ -29,6 +29,15 @@ namespace Calculator.Views
         private void MainWindow_Loaded(object sender, RoutedEventArgs e)
         {
             UpdateModeView();
+            if (viewModel.IsProgrammerMode)
+            {
+                viewModel.SetBase(10);
+                UpdateButtonsForBase(10);
+            }
+            if (btnDec.IsChecked == true)
+            {
+                Base_Checked(btnDec, null);
+            }
         }
 
 
@@ -63,28 +72,24 @@ namespace Calculator.Views
             }
         }
 
-        private void Button_Click(object sender, RoutedEventArgs e)
-        {
-
-        }
-
-
 
 
         private void Base_Checked(object sender, RoutedEventArgs e)
         {
+            var vm = DataContext as CalculatorViewModel;
+            if (vm == null)
+                return;
+
             if (sender is RadioButton rb && rb.Tag != null)
             {
-                // For example: "16" for HEX, "10" for DEC, etc.
                 if (int.TryParse(rb.Tag.ToString(), out int newBase))
                 {
-                    viewModel.SetBase(newBase);
-
-                    // Now gray out invalid buttons:
+                    vm.SetBase(newBase);
                     UpdateButtonsForBase(newBase);
                 }
             }
         }
+
 
 
         private void UpdateButtonsForBase(int baseVal)
