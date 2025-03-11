@@ -162,6 +162,71 @@ namespace Calculator.ViewModels
 
         protected void OnPropertyChanged(string propertyName) =>
             PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
+
+
+
+
+
+
+        private string _hexValue = "0";
+        public string HexValue
+        {
+            get => _hexValue;
+            set
+            {
+                if (_hexValue != value)
+                {
+                    _hexValue = value;
+                    OnPropertyChanged(nameof(HexValue));
+                }
+            }
+        }
+        private string _decValue = "0";
+        public string DecValue
+        {
+            get => _decValue;
+            set
+            {
+                if (_decValue != value)
+                {
+                    _decValue = value;
+                    OnPropertyChanged(nameof(DecValue));
+                }
+            }
+        }
+
+        private string _octValue = "0";
+        public string OctValue
+        {
+            get => _octValue;
+            set
+            {
+                if (_octValue != value)
+                {
+                    _octValue = value;
+                    OnPropertyChanged(nameof(OctValue));
+                }
+            }
+        }
+
+        private string _binValue = "0";
+        public string BinValue
+        {
+            get => _binValue;
+            set
+            {
+                if (_binValue != value)
+                {
+                    _binValue = value;
+                    OnPropertyChanged(nameof(BinValue));
+                }
+            }
+        }
+
+       
+
+
+
     }
 }
 

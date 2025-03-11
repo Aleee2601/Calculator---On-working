@@ -1,14 +1,12 @@
 ﻿<Window x:Class="Calculator.Views.MainWindow"
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
-        xmlns:local="clr-namespace:Calculator.Views"
-
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:local="clr-namespace:Calculator.Views"
         Title="Calculator" Height="678" Width="350"
         Background="#1E1E1E" Foreground="White"
         FontFamily="Segoe UI">
 
     <Window.Resources>
-   
 
         <!-- General Button Style -->
         <Style TargetType="Button" x:Key="CalcButtonStyle">
@@ -29,7 +27,18 @@
                     </ControlTemplate>
                 </Setter.Value>
             </Setter>
+
+            <!-- Add a Trigger to recolor the button if IsEnabled=False -->
+            <Style.Triggers>
+                <Trigger Property="IsEnabled" Value="False">
+                    <Setter Property="Background" Value="#AAAAAA"/>
+                    <!-- a light gray background -->
+                    <Setter Property="Foreground" Value="#666666"/>
+                    <!-- a darker text for contrast -->
+                </Trigger>
+            </Style.Triggers>
         </Style>
+
 
         <Style x:Key="ModeToggleButtonStyle" TargetType="ToggleButton">
             <Setter Property="FontSize" Value="16"/>
@@ -54,95 +63,114 @@
             </Setter>
         </Style>
 
-        <!-- Equals (=) Button Style -->
         <Style TargetType="Button" x:Key="EqualsButtonStyle" BasedOn="{StaticResource CalcButtonStyle}">
             <Setter Property="Background" Value="#0078D7"/>
             <Setter Property="Foreground" Value="White"/>
         </Style>
+
+        <Style TargetType="RadioButton" x:Key="NoCircleRadioButtonStyle">
+            <!-- Default appearance -->
+            <Setter Property="Foreground" Value="White"/>
+            <Setter Property="FontWeight" Value="Normal"/>
+            <Setter Property="BorderThickness" Value="0"/>
+            <!-- Replace the default control template so there's no circle -->
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="RadioButton">
+                        <!-- Just show whatever Content is inside the RadioButton -->
+                        <ContentPresenter />
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+
+            <!-- Triggers for IsChecked (change text color and weight) -->
+            <Style.Triggers>
+                <Trigger Property="IsChecked" Value="True">
+                    <Setter Property="Foreground" Value="#0078D7"/>
+                    <Setter Property="FontWeight" Value="Bold"/>
+                </Trigger>
+            </Style.Triggers>
+        </Style>
+
     </Window.Resources>
 
 
-
-
     <Grid Margin="10">
+        <!-- Define two rows:
+             Row 0 -> top area with Mode + Display
+             Row 1 -> main content area (Standard / Programmer grids)
+        -->
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto"/>
-            <!-- Top row with mode and display -->
             <RowDefinition Height="*"/>
-            <!-- The rest of the content -->
         </Grid.RowDefinitions>
 
-
+        <!-- TOP SECTION: Mode + Display -->
         <Grid Grid.Row="0">
             <Grid.RowDefinitions>
                 <RowDefinition Height="Auto"/>
-                <!-- Top bar: hamburger + Standard -->
                 <RowDefinition Height="Auto"/>
-                <!-- Display -->
             </Grid.RowDefinitions>
 
             <Grid Grid.Row="0">
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="Auto"/>
-                    <!-- Hamburger -->
                     <ColumnDefinition Width="Auto"/>
-                    <!-- Mode label -->
                     <ColumnDefinition Width="*"/>
-                    <!-- Spacer if needed -->
                 </Grid.ColumnDefinitions>
 
                 <!-- Hamburger Button -->
                 <Button Content="☰"
-                FontSize="18"
-                Width="30"
-                Height="30"
-                Background="Transparent"
-                BorderThickness="0"
-                Foreground="White"
-                Cursor="Hand"
-                Click="Hamburger_Click" VerticalAlignment="Top" />
+                        FontSize="18"
+                        Width="30"
+                        Height="30"
+                        Background="Transparent"
+                        BorderThickness="0"
+                        Foreground="White"
+                        Cursor="Hand"
+                        Click="Hamburger_Click"
+                        VerticalAlignment="Top" />
 
                 <!-- Mode Label -->
                 <TextBlock Grid.Column="1"
-                   Text="{Binding CurrentMode}"
-                   VerticalAlignment="Center"
-                   FontSize="18"
-                   FontWeight="Bold"
-                   Margin="10,0"
-                   Foreground="White" />
+                           Text="{Binding CurrentMode}"
+                           VerticalAlignment="Center"
+                           FontSize="18"
+                           FontWeight="Bold"
+                           Margin="10,0"
+                           Foreground="White" />
             </Grid>
 
-            <!-- Display TextBox under the selector -->
+            <!-- Display TextBox below the hamburger/mode label row -->
             <TextBox x:Name="txtDisplay"
-            Text="{Binding DisplayText, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
-             Grid.Row="1"
-             FontSize="36"
-             Background="#1E1E1E"
-             Foreground="White"
-             TextAlignment="Right"
-             Padding="10"
-             IsReadOnly="True"
-             BorderThickness="0"
-             VerticalContentAlignment="Center"
-             Height="80"
-             Margin="0,10,0,10"
-             TextChanged="txtDisplay_TextChanged"
-             HorizontalAlignment="Stretch"/>
+                     Grid.Row="1"
+                     Text="{Binding DisplayText, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                     FontSize="36"
+                     Background="#1E1E1E"
+                     Foreground="White"
+                     TextAlignment="Right"
+                     Padding="10"
+                     IsReadOnly="True"
+                     BorderThickness="0"
+                     VerticalContentAlignment="Center"
+                     Height="80"
+                     Margin="0,10,0,10"
+                     TextChanged="txtDisplay_TextChanged"
+                     HorizontalAlignment="Stretch"/>
         </Grid>
 
 
-
+        <!-- MAIN CONTENT SECTION -->
         <Grid Grid.Row="1" Grid.ColumnSpan="3">
+
+            <!-- STANDARD MODE GRID -->
             <Grid x:Name="StandardGrid" Visibility="Collapsed">
-                <!-- Visibility="Collapsed" -->
                 <Grid.RowDefinitions>
                     <RowDefinition Height="Auto"/>
-                    <!-- Memory buttons -->
                     <RowDefinition Height="*"/>
-
                 </Grid.RowDefinitions>
 
-                <!-- MEMORY BUTTONS GRID (top row) -->
+                <!-- MEMORY BUTTONS (top row) -->
                 <Grid Grid.Row="0">
                     <Grid.ColumnDefinitions>
                         <ColumnDefinition Width="*"/>
@@ -161,7 +189,7 @@
                     <Button Style="{StaticResource CalcButtonStyle}" Grid.Column="5" Content="M˅"/>
                 </Grid>
 
-                <!-- MAIN BUTTONS GRID (6x4) -->
+                <!-- MAIN BUTTONS GRID (6 rows, 4 columns) -->
                 <Grid Grid.Row="1">
                     <Grid.RowDefinitions>
                         <RowDefinition/>
@@ -215,37 +243,90 @@
                     <Button Style="{StaticResource EqualsButtonStyle}" Grid.Row="5" Grid.Column="3" Content="=" CommandParameter="="/>
                 </Grid>
             </Grid>
-            <Grid x:Name="ProgrammerGrid" Visibility="Visible">   
-                 <!--  Visibility="Visible" -->
+
+            <!-- PROGRAMMER MODE GRID -->
+            <Grid x:Name="ProgrammerGrid" Visibility="Visible">
                 <Grid.RowDefinitions>
                     <RowDefinition Height="Auto"/>
-                    <!-- Labels -->
                     <RowDefinition Height="*"/>
-                    <!-- Buttons -->
                 </Grid.RowDefinitions>
 
-                <!-- HEX / DEC / OCT / BIN labels -->
-                <StackPanel Grid.Row="0" Orientation="Vertical" Margin="0,0,0,10">
-                    <StackPanel Orientation="Horizontal" Margin="0,5">
-                        <TextBlock Text="HEX" Width="40"/>
-                        <TextBlock Text="0"/>
-                    </StackPanel>
-                    <StackPanel Orientation="Horizontal" Margin="0,5">
-                        <TextBlock Text="DEC" Width="40"/>
-                        <TextBlock Text="0"/>
-                    </StackPanel>
-                    <StackPanel Orientation="Horizontal" Margin="0,5">
-                        <TextBlock Text="OCT" Width="40"/>
-                        <TextBlock Text="0"/>
-                    </StackPanel>
-                    <StackPanel Orientation="Horizontal" Margin="0,5">
-                        <TextBlock Text="BIN" Width="40"/>
-                        <TextBlock Text="0"/>
-                    </StackPanel>
+                <!-- Only one column here for simplicity -->
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*"/>
+                </Grid.ColumnDefinitions>
+
+                <!-- A vertical StackPanel to hold the four RadioButtons for HEX / DEC / OCT / BIN -->
+                <StackPanel Grid.Row="0"
+                            Grid.Column="0"
+                            Orientation="Vertical"
+                            Margin="0,0,0,10"
+                            HorizontalAlignment="Left">
+
+                    <!-- HEX RadioButton (with combined label + numeric text) -->
+                    <RadioButton x:Name="btnHex"
+                                 Style="{StaticResource NoCircleRadioButtonStyle}"
+                                 Tag="16"
+                                 GroupName="BaseGroup"
+                                 Checked="Base_Checked"
+                                 Margin="0,5,0,0">
+                        <StackPanel Orientation="Horizontal">
+                            <TextBlock Text="HEX" Width="40" />
+                            <TextBlock Text="{Binding HexValue}" />
+                        </StackPanel>
+                        
+                    </RadioButton>
+
+                    <!-- DEC RadioButton -->
+                    <RadioButton x:Name="btnDec"
+             Style="{StaticResource NoCircleRadioButtonStyle}"
+             Tag="10"
+             GroupName="BaseGroup"
+             Checked="Base_Checked"
+             Margin="0,5,0,0">
+                        <StackPanel Orientation="Horizontal">
+                            <TextBlock Text="DEC" Width="40"/>
+                            <!-- BIND to DecValue here -->
+                            <TextBlock Text="{Binding DecValue}"/>
+                        </StackPanel>
+                    </RadioButton>
+
+                    <!-- OCT RadioButton -->
+                    <RadioButton x:Name="btnOct"
+             Style="{StaticResource NoCircleRadioButtonStyle}"
+             Tag="8"
+             GroupName="BaseGroup"
+             Checked="Base_Checked"
+             Margin="0,5,0,0">
+                        <StackPanel Orientation="Horizontal">
+                            <TextBlock Text="OCT" Width="40"/>
+                            <!-- BIND to OctValue -->
+                            <TextBlock Text="{Binding OctValue}"/>
+                        </StackPanel>
+                    </RadioButton>
+
+                    <!-- BIN RadioButton -->
+                    <RadioButton x:Name="btnBin"
+             Style="{StaticResource NoCircleRadioButtonStyle}"
+             Tag="2"
+             GroupName="BaseGroup"
+             Checked="Base_Checked"
+             Margin="0,5,0,0">
+                        <StackPanel Orientation="Horizontal">
+                            <TextBlock Text="BIN" Width="40"/>
+                            <!-- BIND to BinValue -->
+                            <TextBlock Text="{Binding BinValue}"/>
+                        </StackPanel>
+                    </RadioButton>
+
+
                 </StackPanel>
 
-                <!-- Right side: Buttons and layout -->
-                <StackPanel Margin="0,10,0,10" Grid.Row="1">
+                <!-- Right side: memory buttons + main button grid -->
+                <StackPanel Margin="0,10,0,10"
+                            Grid.Row="1"
+                            Grid.ColumnSpan="1">
+
                     <!-- Memory buttons -->
                     <UniformGrid Columns="6" Margin="0,0,0,10">
                         <Button Content="MC" Command="{Binding MemoryClearCommand}" Style="{StaticResource CalcButtonStyle}"/>
@@ -274,15 +355,14 @@
                             <ColumnDefinition/>
                         </Grid.ColumnDefinitions>
 
-                        <!-- Fill in buttons as you already have, adjusting Grid.Row and Grid.Column -->
                         <!-- Row 0 -->
                         <Button Style="{StaticResource CalcButtonStyle}" Grid.Row="0" Grid.Column="0" Content="A" CommandParameter="A"/>
                         <Button Style="{StaticResource CalcButtonStyle}" Grid.Row="0" Grid.Column="1" Content="%" CommandParameter="%"/>
                         <Button Style="{StaticResource CalcButtonStyle}" Grid.Row="0" Grid.Column="2" Content="CE" Command="{Binding ClearEntryCommand}"/>
-                        <Button Style="{StaticResource CalcButtonStyle}" Grid.Row="0" Grid.Column="3" Content="C" Command="{Binding ClearCommand}"/>
+                        <Button Style="{StaticResource CalcButtonStyle}" Grid.Row="0" Grid.Column="3" Content="CLR" Command="{Binding ClearCommand}"/>
                         <Button Style="{StaticResource CalcButtonStyle}" Grid.Row="0" Grid.Column="4" Content="⌫" Command="{Binding BackspaceCommand}"/>
 
-                        <!-- Row 1 -->
+                        <!-- Row 1 -->  
                         <Button Style="{StaticResource CalcButtonStyle}" Grid.Row="1" Grid.Column="0" Content="B" CommandParameter="B"/>
                         <Button Style="{StaticResource CalcButtonStyle}" Grid.Row="1" Grid.Column="1" Content="1/x" CommandParameter="1/x"/>
                         <Button Style="{StaticResource CalcButtonStyle}" Grid.Row="1" Grid.Column="2" Content="x²" CommandParameter="pow"/>
@@ -291,7 +371,7 @@
 
                         <!-- Row 2 -->
                         <Button Style="{StaticResource CalcButtonStyle}" Grid.Row="2" Grid.Column="0" Content="C" CommandParameter="C"/>
-                        <Button Style="{StaticResource CalcButtonStyle}" Grid.Row="2" Grid.Column="1" Content="7" CommandParameter="7"/>
+                        <Button Style="{StaticResource CalcButtonStyle}" Grid.Row="2" Grid.Column="1" Content="7" CommandParameter="7" Click="Button_Click"/>
                         <Button Style="{StaticResource CalcButtonStyle}" Grid.Row="2" Grid.Column="2" Content="8" CommandParameter="8"/>
                         <Button Style="{StaticResource CalcButtonStyle}" Grid.Row="2" Grid.Column="3" Content="9" CommandParameter="9"/>
                         <Button Style="{StaticResource CalcButtonStyle}" Grid.Row="2" Grid.Column="4" Content="×" CommandParameter="*"/>
@@ -316,15 +396,9 @@
                         <Button Style="{StaticResource CalcButtonStyle}" Grid.Row="5" Grid.Column="2" Content="0" CommandParameter="0"/>
                         <Button Style="{StaticResource CalcButtonStyle}" Grid.Row="5" Grid.Column="3" Content="." CommandParameter="."/>
                         <Button Style="{StaticResource EqualsButtonStyle}" Grid.Row="5" Grid.Column="4" Content="=" CommandParameter="="/>
-
-
-                        <!-- Continue with other rows like this... -->
                     </Grid>
                 </StackPanel>
             </Grid>
-
-
         </Grid>
     </Grid>
-
 </Window>
