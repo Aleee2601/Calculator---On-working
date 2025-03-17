@@ -2,18 +2,14 @@
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Media;
-using Calculator.ViewModels;
-using System.Windows;
-using System.Windows.Controls;
-using System.Windows.Media; // For VisualTreeHelper
 using System.Collections.Generic;
-using System.Linq;
+using System.Globalization;
+using System.ComponentModel;
+using System.Windows.Input;
+using Calculator.ViewModels;
 
 namespace Calculator.Views
 {
-    /// <summary>
-    /// Interaction logic for MainWindow.xaml
-    /// </summary>
     public partial class MainWindow : Window
     {
         private CalculatorViewModel viewModel;
@@ -24,37 +20,143 @@ namespace Calculator.Views
             viewModel = new CalculatorViewModel();
             DataContext = viewModel;
             Loaded += MainWindow_Loaded;
+            Closing += MainWindow_Closing;
+        }
+
+        #region Lifecycle
+
+        private void MainWindow_Closing(object sender, CancelEventArgs e)
+        {
+            viewModel.SaveSettings();
         }
 
         private void MainWindow_Loaded(object sender, RoutedEventArgs e)
         {
             UpdateModeView();
+
             if (viewModel.IsProgrammerMode)
             {
-                viewModel.SetBase(10);
-                UpdateButtonsForBase(10);
-            }
-            if (btnDec.IsChecked == true)
-            {
-                Base_Checked(btnDec, null);
+                ApplyInitialBase();
             }
         }
 
+        #endregion
 
+        #region Base Management
 
-        private void txtDisplay_TextChanged(object sender, TextChangedEventArgs e)
+        private void ApplyInitialBase()
         {
-            if (string.IsNullOrWhiteSpace(txtDisplay.Text))
-            {
-                txtDisplay.Text = "0";
-                return;
-            }
+            if (viewModel == null) return;
 
-            if (!double.TryParse(txtDisplay.Text, out _))
+            RadioButton target = null;
+
+            if (viewModel.CurrentBase == 16)
+                target = btnHex;
+            else if (viewModel.CurrentBase == 10)
+                target = btnDec;
+            else if (viewModel.CurrentBase == 8)
+                target = btnOct;
+            else if (viewModel.CurrentBase == 2)
+                target = btnBin;
+
+            if (target != null)
             {
-                // Revert to last known valid value
-                txtDisplay.Text = viewModel.DisplayText;
+                target.IsChecked = true;
+                Base_Checked(target, null);
             }
+        }
+
+        private void Base_Checked(object sender, RoutedEventArgs e)
+        {
+            if (viewModel == null) return;
+
+            if (sender is RadioButton rb && rb.Tag != null)
+            {
+                if (int.TryParse(rb.Tag.ToString(), out int newBase))
+                {
+                    viewModel.SetBase(newBase);
+                    UpdateButtonsForBase(newBase);
+                }
+            }
+        }
+
+        private void UpdateButtonsForBase(int baseVal)
+        {
+            var allButtons = GetAllButtons(ProgrammerGrid);
+
+            foreach (var btn in allButtons)
+            {
+                string label = btn.Content?.ToString().ToUpper() ?? "";
+
+                if (label.Length == 1 && "0123456789ABCDEF".Contains(label))
+                {
+                    btn.IsEnabled = IsValidDigitForBase(label, baseVal);
+                }
+                else
+                {
+                    btn.IsEnabled = true;
+                }
+            }
+        }
+
+        private bool IsValidDigitForBase(string digit, int baseVal)
+        {
+            return digit switch
+            {
+                "0" => true,
+                "1" => baseVal >= 2,
+                "2" => baseVal >= 3,
+                "3" => baseVal >= 4,
+                "4" => baseVal >= 5,
+                "5" => baseVal >= 6,
+                "6" => baseVal >= 7,
+                "7" => baseVal >= 8,
+                "8" => baseVal >= 9,
+                "9" => baseVal >= 10,
+                "A" => baseVal == 16,
+                "B" => baseVal == 16,
+                "C" => baseVal == 16,
+                "D" => baseVal == 16,
+                "E" => baseVal == 16,
+                "F" => baseVal == 16,
+                _ => false
+            };
+        }
+
+        private IEnumerable<Button> GetAllButtons(DependencyObject parent)
+        {
+            var result = new List<Button>();
+            int childCount = VisualTreeHelper.GetChildrenCount(parent);
+            for (int i = 0; i < childCount; i++)
+            {
+                var child = VisualTreeHelper.GetChild(parent, i);
+                if (child is Button btn)
+                    result.Add(btn);
+                else
+                    result.AddRange(GetAllButtons(child));
+            }
+            return result;
+        }
+
+        #endregion
+
+        #region UI Actions
+
+        private void Copy_Click(object sender, RoutedEventArgs e)
+        {
+            Clipboard.SetText(txtDisplay.Text);
+        }
+
+        private void Paste_Click(object sender, RoutedEventArgs e)
+        {
+            if (Clipboard.ContainsText())
+                viewModel.DisplayText = Clipboard.GetText();
+        }
+
+        private void Cut_Click(object sender, RoutedEventArgs e)
+        {
+            Clipboard.SetText(txtDisplay.Text);
+            viewModel.DisplayText = "0";
         }
 
         private void Hamburger_Click(object sender, RoutedEventArgs e)
@@ -62,6 +164,15 @@ namespace Calculator.Views
             viewModel.IsProgrammerMode = !viewModel.IsProgrammerMode;
             UpdateModeView();
         }
+
+        private void About_Click(object sender, RoutedEventArgs e)
+        {
+            MessageBox.Show("Aplicatie realizata de Alexandra Onose, grupa 10LF233", "Despre aplicatie", MessageBoxButton.OK, MessageBoxImage.Information);
+        }
+
+        #endregion
+
+        #region UI Helpers
 
         private void UpdateModeView()
         {
@@ -72,94 +183,107 @@ namespace Calculator.Views
             }
         }
 
+        private void txtDisplay_TextChanged(object sender, TextChangedEventArgs e)
+        {
+            if (string.IsNullOrWhiteSpace(txtDisplay.Text))
+            {
+                txtDisplay.Text = "0";
+                return;
+            }
 
+            int currentBase = viewModel.CurrentBase;
 
-        private void Base_Checked(object sender, RoutedEventArgs e)
+            try
+            {
+                int value = Convert.ToInt32(txtDisplay.Text, currentBase);
+                viewModel.DecValue = value.ToString();
+                viewModel.HexValue = value.ToString("X");
+                viewModel.OctValue = ConvertToOctal(value);
+                viewModel.BinValue = Convert.ToString(value, 2);
+            }
+            catch { }
+        }
+
+        private string ConvertToOctal(int number)
+        {
+            if (number == 0) return "0";
+            string octal = "";
+            while (number > 0)
+            {
+                int remainder = number % 8;
+                octal = remainder.ToString() + octal;
+                number /= 8;
+            }
+            return octal;
+        }
+
+        #endregion
+
+        #region Keyboard
+
+        private void Window_PreviewKeyDown(object sender, KeyEventArgs e)
         {
             var vm = DataContext as CalculatorViewModel;
-            if (vm == null)
-                return;
+            if (vm == null) return;
 
-            if (sender is RadioButton rb && rb.Tag != null)
+            if (e.Key == Key.Enter)
             {
-                if (int.TryParse(rb.Tag.ToString(), out int newBase))
-                {
-                    vm.SetBase(newBase);
-                    UpdateButtonsForBase(newBase);
-                }
+                if (vm.EqualsCommand.CanExecute(null))
+                    vm.EqualsCommand.Execute(null);
+                e.Handled = true;
+            }
+            else if (e.Key == Key.Escape)
+            {
+                if (vm.ClearCommand.CanExecute(null))
+                    vm.ClearCommand.Execute(null);
+                e.Handled = true;
+            }
+            else if (e.Key == Key.Back)
+            {
+                if (vm.BackspaceCommand.CanExecute(null))
+                    vm.BackspaceCommand.Execute(null);
+                e.Handled = true;
+            }
+            else if (e.Key >= Key.D0 && e.Key <= Key.D9)
+            {
+                string digit = (e.Key - Key.D0).ToString();
+                vm.NumberCommand.Execute(digit);
+                e.Handled = true;
+            }
+            else if (e.Key >= Key.NumPad0 && e.Key <= Key.NumPad9)
+            {
+                string digit = (e.Key - Key.NumPad0).ToString();
+                vm.NumberCommand.Execute(digit);
+                e.Handled = true;
+            }
+            else if (e.Key == Key.Add || e.Key == Key.OemPlus)
+            {
+                vm.OperatorCommand.Execute("+");
+                e.Handled = true;
+            }
+            else if (e.Key == Key.Subtract || e.Key == Key.OemMinus)
+            {
+                vm.OperatorCommand.Execute("-");
+                e.Handled = true;
+            }
+            else if (e.Key == Key.Multiply)
+            {
+                vm.OperatorCommand.Execute("*");
+                e.Handled = true;
+            }
+            else if (e.Key == Key.Divide || e.Key == Key.Oem2)
+            {
+                vm.OperatorCommand.Execute("/");
+                e.Handled = true;
+            }
+            else if (e.Key == Key.OemComma || e.Key == Key.OemPeriod || e.Key == Key.Decimal)
+            {
+                string separator = CultureInfo.CurrentCulture.NumberFormat.NumberDecimalSeparator;
+                vm.NumberCommand.Execute(separator);
+                e.Handled = true;
             }
         }
 
-
-
-        private void UpdateButtonsForBase(int baseVal)
-        {
-            // 1) Get all the Button controls under ProgrammerGrid
-            var allButtons = GetAllButtons(ProgrammerGrid);
-
-            // 2) For each button, if its content is 0..9 or A..F, check if valid in the chosen base
-            foreach (var btn in allButtons)
-            {
-                string label = btn.Content?.ToString().ToUpper() ?? "";
-
-                // If it's exactly 1 character and in 0-9A-F, then decide based on base
-                if (label.Length == 1 && "0123456789ABCDEF".Contains(label))
-                {
-                    btn.IsEnabled = IsValidDigitForBase(label, baseVal);
-                }
-                else
-                {
-                    // Operators, memory buttons, etc. remain enabled
-                    btn.IsEnabled = true;
-                }
-            }
-        }
-
-
-           private bool IsValidDigitForBase(string digit, int baseVal)
-            {
-                switch (digit)
-                {
-                    case "0": return true;  // '0' is valid in all bases
-                    case "1": return baseVal >= 2;
-                    case "2": return baseVal >= 3;
-                    case "3": return baseVal >= 4;
-                    case "4": return baseVal >= 5;
-                    case "5": return baseVal >= 6;
-                    case "6": return baseVal >= 7;
-                    case "7": return baseVal >= 8;
-                    case "8": return baseVal >= 9;
-                    case "9": return baseVal >= 10;
-                    case "A": return baseVal == 16;
-                    case "B": return baseVal == 16;
-                    case "C": return baseVal == 16;
-                    case "D": return baseVal == 16;
-                    case "E": return baseVal == 16;
-                    case "F": return baseVal == 16;
-                    default: return false;
-                }
-            }
-
-        private IEnumerable<Button> GetAllButtons(DependencyObject parent)
-        {
-            var result = new List<Button>();
-            int childCount = VisualTreeHelper.GetChildrenCount(parent);
-            for (int i = 0; i < childCount; i++)
-            {
-                var child = VisualTreeHelper.GetChild(parent, i);
-
-                if (child is Button btn)
-                {
-                    result.Add(btn);
-                }
-                else
-                {
-                    // Recurse further down
-                    result.AddRange(GetAllButtons(child));
-                }
-            }
-            return result;
-        }
-
+        #endregion
     }
 }

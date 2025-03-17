@@ -2,14 +2,14 @@
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:local="clr-namespace:Calculator.Views"
-        Title="Calculator" Height="678" Width="350"
+        Title="Calculator" Height="689" Width="350"
         Background="#1E1E1E" Foreground="White"
-        FontFamily="Segoe UI">
-    
+        FontFamily="Segoe UI"
+        ResizeMode="NoResize"
+        PreviewKeyDown="Window_PreviewKeyDown"
+        WindowStyle="SingleBorderWindow">
 
-    
-    
-    
+
     <Window.Resources>
         <!-- Asigură-te că ai definit aceste convertoare (sau adaugă-le în App.xaml) -->
         <local:BoolToFontWeightConverter x:Key="BoolToFontWeightConverter" />
@@ -69,19 +69,49 @@
         </Style>
     </Window.Resources>
 
+
     <Grid Margin="10">
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="43*"/>
+            <ColumnDefinition Width="122*"/>
+        </Grid.ColumnDefinitions>
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto"/>
             <RowDefinition Height="*"/>
         </Grid.RowDefinitions>
 
+        <Menu VerticalAlignment="Top" Margin="0,-8,0,0">
+            <MenuItem Header="File">
+                <MenuItem Header="Copy" Click="Copy_Click"/>
+                <MenuItem Header="Paste" Click="Paste_Click"/>
+                <MenuItem Header="Cut" Click="Cut_Click"/>
+
+
+                <Separator />
+                <MenuItem Header="Digit Grouping" IsCheckable="True" IsChecked="{Binding IsDigitGroupingEnabled}" />
+            </MenuItem>
+
+            <MenuItem Header="Help">
+                <MenuItem Header="About" Click="About_Click"/>
+            </MenuItem>
+        </Menu>
+
+
+
+
         <!-- TOP SECTION: Mod + Display -->
-        <Grid Grid.Row="0">
+        <Grid Grid.Row="0" Grid.ColumnSpan="2" Margin="0,10,0,0">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="63*"/>
+                <ColumnDefinition Width="41*"/>
+                <ColumnDefinition Width="3*"/>
+                <ColumnDefinition Width="3*"/>
+            </Grid.ColumnDefinitions>
             <Grid.RowDefinitions>
                 <RowDefinition Height="Auto"/>
                 <RowDefinition Height="Auto"/>
             </Grid.RowDefinitions>
-            <Grid Grid.Row="0">
+            <Grid Grid.Row="0" Grid.ColumnSpan="4">
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="Auto"/>
                     <ColumnDefinition Width="Auto"/>
@@ -107,6 +137,8 @@
                            Margin="10,0"
                            Foreground="White"/>
             </Grid>
+
+
             <!-- Display-ul Calculatorului -->
             <TextBox x:Name="txtDisplay"
                  Grid.Row="1"
@@ -121,15 +153,14 @@
                  VerticalContentAlignment="Center"
                  Height="80"
                  Margin="0,10,0,10"
-                 TextChanged="txtDisplay_TextChanged"
-                 HorizontalAlignment="Stretch"/>    
+                 TextChanged="txtDisplay_TextChanged" Grid.ColumnSpan="4"/>
 
 
 
         </Grid>
 
         <!-- MAIN CONTENT SECTION -->
-        <Grid Grid.Row="1">
+        <Grid Grid.Row="1" Grid.ColumnSpan="2">
             <!-- Standard Mode Grid -->
             <Grid x:Name="StandardGrid" Visibility="Collapsed">
                 <Grid.RowDefinitions>
@@ -170,7 +201,12 @@
                         <ColumnDefinition/>
                     </Grid.ColumnDefinitions>
                     <!-- Row 0: Operații de bază -->
-                    <Button Style="{StaticResource CalcButtonStyle}" Grid.Row="0" Grid.Column="0" Content="%" Command="{Binding OperatorCommand}" CommandParameter="%"/>
+                    <Button Style="{StaticResource CalcButtonStyle}" Grid.Row="0" Grid.Column="0" Content="%" Command="{Binding PercentCommand}" />
+
+
+
+
+
                     <Button Style="{StaticResource CalcButtonStyle}" Grid.Row="0" Grid.Column="1" Content="CE" Command="{Binding ClearEntryCommand}"/>
                     <Button Style="{StaticResource CalcButtonStyle}" Grid.Row="0" Grid.Column="2" Content="C" Command="{Binding ClearCommand}"/>
                     <Button Style="{StaticResource CalcButtonStyle}" Grid.Row="0" Grid.Column="3" Content="⌫" Command="{Binding BackspaceCommand}"/>
@@ -266,8 +302,8 @@
                         <Button Content="MR" Command="{Binding MemoryRecallCommand}" Style="{StaticResource CalcButtonStyle}"/>
                         <Button Content="M+" Command="{Binding MemoryPlusCommand}" Style="{StaticResource CalcButtonStyle}"/>
                         <Button Content="M-" Command="{Binding MemoryMinusCommand}" Style="{StaticResource CalcButtonStyle}"/>
-                        <Button Content="MS" Style="{StaticResource CalcButtonStyle}"/>
-                        <Button Content="M˅" Style="{StaticResource CalcButtonStyle}"/>
+                        <Button Content="MS" Command="{Binding MemoryStoreCommand}" Style="{StaticResource CalcButtonStyle}"/>
+                        <Button Content="M˅" Command="{Binding MemoryListCommand}" Style="{StaticResource CalcButtonStyle}"/>
                     </UniformGrid>
                     <Grid Height="344">
                         <Grid.RowDefinitions>
@@ -288,7 +324,7 @@
                         <!-- Exemplu de butoane pentru modul Programmer -->
                         <!-- Row 0 -->
                         <Button Style="{StaticResource CalcButtonStyle}" Grid.Row="0" Grid.Column="0" Content="A" Command="{Binding NumberCommand}" CommandParameter="A"/>
-                        <Button Style="{StaticResource CalcButtonStyle}" Grid.Row="0" Grid.Column="1" Content="%" Command="{Binding OperatorCommand}" CommandParameter="%"/>
+                        <Button Style="{StaticResource CalcButtonStyle}" Grid.Row="0" Grid.Column="1" Content="%" Command="{Binding PercentCommand}" Margin="4,4,4,4" />
                         <Button Style="{StaticResource CalcButtonStyle}" Grid.Row="0" Grid.Column="2" Content="CE" Command="{Binding ClearEntryCommand}"/>
                         <Button Style="{StaticResource CalcButtonStyle}" Grid.Row="0" Grid.Column="3" Content="CLR" Command="{Binding ClearCommand}"/>
                         <Button Style="{StaticResource CalcButtonStyle}" Grid.Row="0" Grid.Column="4" Content="⌫" Command="{Binding BackspaceCommand}"/>
