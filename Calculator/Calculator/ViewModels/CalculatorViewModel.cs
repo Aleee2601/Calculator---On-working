@@ -396,8 +396,13 @@ namespace Calculator.ViewModels
         {
             try
             {
-                string[] parts = _displayText.Split(' ');
-                if (parts.Length != 3) return;
+                // Construim expresia completă din DisplayTextHistory și DisplayText
+                string fullExpression = (DisplayTextHistory + " " + DisplayText).Trim();
+                string[] parts = fullExpression.Split(' ', StringSplitOptions.RemoveEmptyEntries);
+
+                // Ne asigurăm că avem cel puțin 3 elemente: operand, operator și operand
+                if (parts.Length < 3)
+                    return;
 
                 double op1 = double.Parse(parts[0]);
                 string op = parts[1];
@@ -410,13 +415,15 @@ namespace Calculator.ViewModels
                     _ => 0
                 };
 
-                DisplayText = $"{op1} {op} {percent}";
+                // Actualizează DisplayText cu procentul calculat
+                DisplayText = percent.ToString();
             }
             catch
             {
                 DisplayText = "Eroare";
             }
         }
+
 
         public void SetBase(int newBase)
         {

@@ -86,8 +86,7 @@
               "RelativeToolTip": "Calculator\\Views\\HistoryWindow.xaml.cs",
               "ViewState": "AgIAAAAAAAAAAAAAAAAAABcAAAA7AAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2025-03-19T05:42:00.66Z",
-              "EditorCaption": ""
+              "WhenOpened": "2025-03-19T05:42:00.66Z"
             },
             {
               "$type": "Document",
@@ -98,8 +97,7 @@
               "ToolTip": "E:\\Proiecte Personale\\Calculator\\Calculator\\Calculator\\Views\\HistoryWindow.xaml",
               "RelativeToolTip": "Calculator\\Views\\HistoryWindow.xaml",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.003549|",
-              "WhenOpened": "2025-03-19T05:41:53.287Z",
-              "EditorCaption": ""
+              "WhenOpened": "2025-03-19T05:41:53.287Z"
             },
             {
               "$type": "Document",
@@ -133,8 +131,7 @@
               "RelativeToolTip": "Calculator\\Models\\CalculatorModel.cs",
               "ViewState": "AgIAAAAAAAAAAAAAAAAAAEkAAAA4AAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2025-03-17T14:39:59.027Z",
-              "EditorCaption": ""
+              "WhenOpened": "2025-03-17T14:39:59.027Z"
             },
             {
               "$type": "Document",
@@ -146,8 +143,7 @@
               "RelativeToolTip": "Calculator\\ViewModels\\CalculatorViewModel.cs",
               "ViewState": "AgIAAP8AAAAAAAAAAAAmwC8BAAAAAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2025-03-17T14:30:08.727Z",
-              "EditorCaption": ""
+              "WhenOpened": "2025-03-17T14:30:08.727Z"
             },
             {
               "$type": "Document",
@@ -167,9 +163,9 @@
               "Title": "MainWindow.xaml.cs",
               "DocumentMoniker": "E:\\Proiecte Personale\\Calculator\\Calculator\\Calculator\\Views\\MainWindow.xaml.cs",
               "RelativeDocumentMoniker": "Calculator\\Views\\MainWindow.xaml.cs",
-              "ToolTip": "E:\\Proiecte Personale\\Calculator\\Calculator\\Calculator\\Views\\MainWindow.xaml.cs*",
-              "RelativeToolTip": "Calculator\\Views\\MainWindow.xaml.cs*",
-              "ViewState": "AgIAAKIAAAAAAAAAAAAwwMYAAAANAAAAAAAAAA==",
+              "ToolTip": "E:\\Proiecte Personale\\Calculator\\Calculator\\Calculator\\Views\\MainWindow.xaml.cs",
+              "RelativeToolTip": "Calculator\\Views\\MainWindow.xaml.cs",
+              "ViewState": "AgIAAKIAAAAAAAAAAAAwwM4AAABCAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
               "WhenOpened": "2025-03-10T09:56:16.382Z",
               "EditorCaption": ""
@@ -183,8 +179,7 @@
               "ToolTip": "E:\\Proiecte Personale\\Calculator\\Calculator\\Calculator\\Views\\MainWindow.xaml",
               "RelativeToolTip": "Calculator\\Views\\MainWindow.xaml",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.003549|",
-              "WhenOpened": "2025-03-10T09:54:49.732Z",
-              "EditorCaption": ""
+              "WhenOpened": "2025-03-10T09:54:49.732Z"
             },
             {
               "$type": "Document",
@@ -255,8 +250,7 @@
               "ToolTip": "E:\\Proiecte Personale\\Calculator\\Calculator\\Calculator\\App.xaml",
               "RelativeToolTip": "Calculator\\App.xaml",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.003549|",
-              "WhenOpened": "2025-03-03T13:48:16.476Z",
-              "EditorCaption": ""
+              "WhenOpened": "2025-03-03T13:48:16.476Z"
             }
           ]
         }
