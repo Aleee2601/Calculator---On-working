@@ -33,6 +33,7 @@ namespace Calculator.Views
         private void MainWindow_Loaded(object sender, RoutedEventArgs e)
         {
             UpdateModeView();
+            UpdateModeSwitchButton();
 
             if (viewModel.IsProgrammerMode)
             {
@@ -159,10 +160,39 @@ namespace Calculator.Views
             viewModel.DisplayText = "0";
         }
 
-        private void Hamburger_Click(object sender, RoutedEventArgs e)
+        /// <summary>
+        /// Evenimentul apelat la clic pe butonul Hamburger.
+        /// Schimbă iconița de la "☰" la "▼" și inversează deschiderea Popup-ului.
+        /// </summary>
+        private void btnHamburger_Click(object sender, RoutedEventArgs e)
+        {
+            if (btnHamburger.Content.ToString() == "☰")
+                btnHamburger.Content = "▼";
+            else
+                btnHamburger.Content = "☰";
+
+            popupMenu.IsOpen = !popupMenu.IsOpen;
+        }
+
+        private void File_Click(object sender, RoutedEventArgs e)
+        {
+            MessageBox.Show("File clicked!", "Info", MessageBoxButton.OK, MessageBoxImage.Information);
+        }
+
+        private void Help_Click(object sender, RoutedEventArgs e)
+        {
+            MessageBox.Show("Help clicked!", "Info", MessageBoxButton.OK, MessageBoxImage.Information);
+        }
+
+        /// <summary>
+        /// Evenimentul apelat la clic pe butonul din Popup pentru schimbarea modului.
+        /// </summary>
+        private void btnModeSwitch_Click(object sender, RoutedEventArgs e)
         {
             viewModel.IsProgrammerMode = !viewModel.IsProgrammerMode;
             UpdateModeView();
+            UpdateModeSwitchButton();
+            popupMenu.IsOpen = false; // Închide popup-ul după schimbare
         }
 
         private void About_Click(object sender, RoutedEventArgs e)
@@ -174,6 +204,9 @@ namespace Calculator.Views
 
         #region UI Helpers
 
+        /// <summary>
+        /// Actualizează vizibilitatea grid-urilor în funcție de modul curent.
+        /// </summary>
         private void UpdateModeView()
         {
             if (StandardGrid != null && ProgrammerGrid != null)
@@ -182,6 +215,27 @@ namespace Calculator.Views
                 ProgrammerGrid.Visibility = viewModel.IsProgrammerMode ? Visibility.Visible : Visibility.Collapsed;
             }
         }
+
+        /// <summary>
+        /// Actualizează textul butonului din Popup pentru schimbarea modului.
+        /// </summary>
+        private void UpdateModeSwitchButton()
+        {
+            if (viewModel.IsProgrammerMode)
+            {
+                btnModeSwitch.Content = "Switch to Standard";
+            }
+            else
+            {
+                btnModeSwitch.Content = "Switch to Programmer";
+            }
+        }
+        private void menuFile_Click(object sender, RoutedEventArgs e)
+        {
+            // Deschide popup-ul secundar cu opțiunile pentru File
+            popupFile.IsOpen = true;
+        }
+
 
         private void txtDisplay_TextChanged(object sender, TextChangedEventArgs e)
         {

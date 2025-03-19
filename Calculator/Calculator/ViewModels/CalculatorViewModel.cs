@@ -13,7 +13,7 @@ namespace Calculator.ViewModels
         private string _displayText = "0";
         private int _currentBase = 10;
         private string _currentMode = "Standard";
-        private bool _isProgrammerMode = false;
+        //private bool _isProgrammerMode = false;
         private double _displayFontSize = 36;
         private bool _isDigitGroupingEnabled = true;
         private CalculatorModel _calculator = new CalculatorModel();
@@ -46,6 +46,7 @@ namespace Calculator.ViewModels
             }
         }
 
+        
         public string CurrentMode
         {
             get => _currentMode;
@@ -59,6 +60,7 @@ namespace Calculator.ViewModels
             }
         }
 
+        private bool _isProgrammerMode;
         public bool IsProgrammerMode
         {
             get => _isProgrammerMode;
@@ -72,6 +74,8 @@ namespace Calculator.ViewModels
                 }
             }
         }
+
+
 
         public int CurrentBase
         {

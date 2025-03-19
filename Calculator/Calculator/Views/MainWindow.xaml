@@ -2,16 +2,17 @@
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:local="clr-namespace:Calculator.Views"
-        Title="Calculator" Height="689" Width="350"
-        Background="#1E1E1E" Foreground="White"
+        Title="Calculator" 
+        Height="689" Width="350"
+        Background="#1E1E1E" 
+        Foreground="White"
         FontFamily="Segoe UI"
         ResizeMode="NoResize"
         PreviewKeyDown="Window_PreviewKeyDown"
         WindowStyle="SingleBorderWindow">
 
-
     <Window.Resources>
-        <!-- Asigură-te că ai definit aceste convertoare (sau adaugă-le în App.xaml) -->
+        <!-- Convertoare personalizate (dacă le folosești) -->
         <local:BoolToFontWeightConverter x:Key="BoolToFontWeightConverter" />
         <local:BoolToVisibilityConverter x:Key="BoolToVisibilityConverter" />
 
@@ -70,7 +71,8 @@
     </Window.Resources>
 
 
-    <Grid Margin="10">
+
+    <Grid Margin="10,33,10,10">
         <Grid.ColumnDefinitions>
             <ColumnDefinition Width="43*"/>
             <ColumnDefinition Width="122*"/>
@@ -80,26 +82,7 @@
             <RowDefinition Height="*"/>
         </Grid.RowDefinitions>
 
-        <Menu VerticalAlignment="Top" Margin="0,-8,0,0">
-            <MenuItem Header="File">
-                <MenuItem Header="Copy" Click="Copy_Click"/>
-                <MenuItem Header="Paste" Click="Paste_Click"/>
-                <MenuItem Header="Cut" Click="Cut_Click"/>
 
-
-                <Separator />
-                <MenuItem Header="Digit Grouping" IsCheckable="True" IsChecked="{Binding IsDigitGroupingEnabled}" />
-            </MenuItem>
-
-            <MenuItem Header="Help">
-                <MenuItem Header="About" Click="About_Click"/>
-            </MenuItem>
-        </Menu>
-
-
-
-
-        <!-- TOP SECTION: Mod + Display -->
         <Grid Grid.Row="0" Grid.ColumnSpan="2" Margin="0,10,0,0">
             <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="63*"/>
@@ -111,55 +94,130 @@
                 <RowDefinition Height="Auto"/>
                 <RowDefinition Height="Auto"/>
             </Grid.RowDefinitions>
-            <Grid Grid.Row="0" Grid.ColumnSpan="4">
+
+            <!-- Rândul superior: butonul hamburger și eticheta modului -->
+            <Grid Grid.Row="0" Grid.ColumnSpan="2" Margin="0,-115,0,0">
                 <Grid.ColumnDefinitions>
-                    <ColumnDefinition Width="Auto"/>
                     <ColumnDefinition Width="Auto"/>
                     <ColumnDefinition Width="*"/>
                 </Grid.ColumnDefinitions>
-                <!-- Hamburger Button -->
-                <Button Content="☰"
-                        FontSize="18"
-                        Width="30"
-                        Height="30"
-                        Background="Transparent"
-                        BorderThickness="0"
-                        Foreground="White"
-                        Cursor="Hand"
-                        Click="Hamburger_Click"
-                        VerticalAlignment="Top"/>
-                <!-- Labelul modului -->
+
+                <!-- Butonul Hamburger -->
+                <Button x:Name="btnHamburger"
+                  Content="☰"
+                  FontSize="18"
+                  Width="30"
+                  Height="30"
+                  Background="Transparent"
+                  BorderThickness="0"
+                  Foreground="White"
+                  Cursor="Hand"
+                  Click="btnHamburger_Click"
+                  VerticalAlignment="Center"
+                  Margin="0"/>
+
+                <!-- Eticheta modului, aflată imediat la dreapta butonului -->
                 <TextBlock Grid.Column="1"
-                           Text="{Binding CurrentMode}"
-                           VerticalAlignment="Center"
-                           FontSize="18"
-                           FontWeight="Bold"
-                           Margin="10,0"
-                           Foreground="White"/>
+                 Text="{Binding CurrentMode}"
+                 VerticalAlignment="Center"
+                 FontSize="18"
+                 FontWeight="Bold"
+                 Margin="10,0,0,0"
+                 Foreground="White"/>
             </Grid>
 
 
-            <!-- Display-ul Calculatorului -->
-            <TextBox x:Name="txtDisplay"
-                 Grid.Row="1"
-                 Text="{Binding DisplayText, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
-                 FontSize="{Binding DisplayFontSize}"
-                 Background="#1E1E1E"
-                 Foreground="White"
-                 TextAlignment="Right"
-                 Padding="10"
-                 IsReadOnly="True"
-                 BorderThickness="0"
-                 VerticalContentAlignment="Center"
-                 Height="80"
-                 Margin="0,10,0,10"
-                 TextChanged="txtDisplay_TextChanged" Grid.ColumnSpan="4"/>
+            <!-- Zona de Display: Istoric și rezultat -->
+            <Grid Grid.ColumnSpan="4" Grid.RowSpan="2">
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="*"/>
+                </Grid.RowDefinitions>
 
+                <!-- Istoricul operației -->
+                <TextBox x:Name="txtHistory"
+                         Grid.Row="0"
+                         Text="{Binding DisplayTextHistory}"
+                         FontSize="{Binding DisplayFontSize}"
+                         Background="#1E1E1E"
+                         Foreground="White"
+                         TextAlignment="Right"
+                         Padding="10"
+                         IsReadOnly="True"
+                         BorderThickness="0"
+                         VerticalContentAlignment="Center"
+                         Margin="0,0,0,5"/>
 
-
+                <!-- Display-ul curent -->
+                <TextBox x:Name="txtDisplay"
+                         Grid.Row="1"
+                         Text="{Binding DisplayText}"
+                         FontSize="{Binding DisplayFontSize}"
+                         Background="#1E1E1E"
+                         Foreground="White"
+                         TextAlignment="Right"
+                         Padding="10"
+                         IsReadOnly="True"
+                         BorderThickness="0"
+                         VerticalContentAlignment="Center"
+                         Margin="0,5,0,0"/>
+            </Grid>
         </Grid>
 
-        <!-- MAIN CONTENT SECTION -->
+
+        <!-- Popup-ul principal pentru meniu -->
+        <Popup x:Name="popupMenu"
+       PlacementTarget="{Binding ElementName=btnHamburger}"
+       Placement="Bottom"
+       StaysOpen="False"
+       AllowsTransparency="True"
+       PopupAnimation="Slide">
+            <Border Background="#1E1E1E" BorderBrush="Black" BorderThickness="1" Padding="5">
+                <StackPanel Orientation="Vertical">
+                    <!-- Meniu File: la click se va deschide un popup secundar -->
+                    <MenuItem x:Name="menuFile" Header="File" Click="menuFile_Click"/>
+
+                    <!-- Meniu Help: la click se va deschide direct un MessageBox -->
+                    <MenuItem Header="Help" Click="About_Click"/>
+
+                    <!-- Buton pentru schimbarea modului (dinamic) -->
+                    <Button x:Name="btnModeSwitch"
+              Content="Switch to Programmer"
+              Background="Transparent"
+              Foreground="White"
+              BorderThickness="0"
+              Padding="5"
+              Click="btnModeSwitch_Click"/>
+                </StackPanel>
+            </Border>
+        </Popup>
+
+        <!-- Popup-ul secundar pentru optiunile File (Cut, Copy, Paste) -->
+        <Popup x:Name="popupFile"
+       PlacementTarget="{Binding ElementName=menuFile}"
+       Placement="Right"
+       StaysOpen="False"
+       AllowsTransparency="True"
+       PopupAnimation="Slide">
+            <Border Background="#1E1E1E" BorderBrush="Black" BorderThickness="1" Padding="5">
+                <StackPanel Orientation="Vertical">
+                    <MenuItem Header="Cut" Click="Cut_Click"/>
+                    <MenuItem Header="Copy" Click="Copy_Click"/>
+                    <MenuItem Header="Paste" Click="Paste_Click"/>
+                    <Separator/>
+                    <MenuItem Header="Digit Grouping"
+                        IsCheckable="True"
+                        IsChecked="{Binding IsDigitGroupingEnabled}" /> 
+                </StackPanel>
+            </Border>
+        </Popup>
+
+
+
+
+
+
         <Grid Grid.Row="1" Grid.ColumnSpan="2">
             <!-- Standard Mode Grid -->
             <Grid x:Name="StandardGrid" Visibility="Collapsed">
@@ -202,11 +260,6 @@
                     </Grid.ColumnDefinitions>
                     <!-- Row 0: Operații de bază -->
                     <Button Style="{StaticResource CalcButtonStyle}" Grid.Row="0" Grid.Column="0" Content="%" Command="{Binding PercentCommand}" />
-
-
-
-
-
                     <Button Style="{StaticResource CalcButtonStyle}" Grid.Row="0" Grid.Column="1" Content="CE" Command="{Binding ClearEntryCommand}"/>
                     <Button Style="{StaticResource CalcButtonStyle}" Grid.Row="0" Grid.Column="2" Content="C" Command="{Binding ClearCommand}"/>
                     <Button Style="{StaticResource CalcButtonStyle}" Grid.Row="0" Grid.Column="3" Content="⌫" Command="{Binding BackspaceCommand}"/>
