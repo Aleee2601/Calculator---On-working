@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.Linq;
 
 namespace Calculator.Models
@@ -9,6 +10,8 @@ namespace Calculator.Models
         #region Fields
 
         private static List<double> memoryStack = new List<double>();
+        private static double? memoryValue = null;
+
 
         #endregion
 
@@ -69,46 +72,47 @@ namespace Calculator.Models
 
         public static void MC() => memoryStack.Clear();
 
-        public static void MPlus(ref string text)
+        public static void MPlus(string text)
         {
-            if (double.TryParse(text, out double value))
+            string unformatted = text.Replace(CultureInfo.CurrentCulture.NumberFormat.NumberGroupSeparator, "");
+            if (double.TryParse(unformatted, out double value))
             {
-                if (memoryStack.Any())
-                    memoryStack[^1] += value;
+                if (memoryValue.HasValue)
+                    memoryValue += value;
                 else
-                    memoryStack.Add(value);
+                    memoryValue = value;
             }
         }
 
 
-        public static void MMinus(ref string text)
+        public static void MMinus(string text)
         {
-            if (double.TryParse(text, out double value))
+            string unformatted = text.Replace(CultureInfo.CurrentCulture.NumberFormat.NumberGroupSeparator, "");
+            if (double.TryParse(unformatted, out double value))
             {
-                if (memoryStack.Any())
-                    memoryStack[^1] -= value;
+                if (memoryValue.HasValue)
+                    memoryValue -= value;
                 else
-                    memoryStack.Add(-value);
+                    memoryValue = -value;
             }
         }
 
-
-        public static double? MS(string text)
+        public static string MS(string text)
         {
-            if (double.TryParse(text, out double value))
+            string unformatted = text.Replace(CultureInfo.CurrentCulture.NumberFormat.NumberGroupSeparator, "");
+            if (double.TryParse(unformatted, out double value))
             {
-                memoryStack.Add(value);
-                return value;
+                memoryValue = value;
             }
-            return null;
+            return memoryValue.HasValue ? memoryValue.Value.ToString() : "0";
         }
 
 
-        public static string MR() => memoryStack.Any() ? memoryStack.Last().ToString() : "0";
 
 
-        public static string MGreater() => memoryStack.Any() ? string.Join(", ", memoryStack) : "0";
+        public static string MR() => memoryValue.HasValue ? memoryValue.Value.ToString() : "0";
 
+        public static string MGreater() => memoryValue.HasValue ? memoryValue.Value.ToString() : "0";
 
         #endregion
 

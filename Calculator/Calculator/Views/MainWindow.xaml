@@ -175,13 +175,8 @@
        PopupAnimation="Slide">
             <Border Background="#1E1E1E" BorderBrush="Black" BorderThickness="1" Padding="5">
                 <StackPanel Orientation="Vertical">
-                    <!-- Meniu File: la click se va deschide un popup secundar -->
                     <MenuItem x:Name="menuFile" Header="File" Click="menuFile_Click"/>
-
-                    <!-- Meniu Help: la click se va deschide direct un MessageBox -->
                     <MenuItem Header="Help" Click="About_Click"/>
-
-                    <!-- Buton pentru schimbarea modului (dinamic) -->
                     <Button x:Name="btnModeSwitch"
               Content="Switch to Programmer"
               Background="Transparent"
@@ -207,8 +202,11 @@
                     <MenuItem Header="Paste" Click="Paste_Click"/>
                     <Separator/>
                     <MenuItem Header="Digit Grouping"
-                        IsCheckable="True"
-                        IsChecked="{Binding IsDigitGroupingEnabled}" /> 
+                            IsCheckable="True"
+                            IsChecked="{Binding IsDigitGroupingEnabled}" />
+                    <MenuItem Header="Evaluare cu prioritate"
+                            IsCheckable="True"
+                            IsChecked="{Binding IsPrecedenceModeEnabled}" />
                 </StackPanel>
             </Border>
         </Popup>

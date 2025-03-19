@@ -39,6 +39,7 @@ namespace Calculator.ViewModels
             }
         }
 
+
         // New property for showing the history (the previous number and operator)
         public string DisplayTextHistory
         {
@@ -124,6 +125,21 @@ namespace Calculator.ViewModels
             }
         }
 
+        private bool _isPrecedenceModeEnabled = false;
+        public bool IsPrecedenceModeEnabled
+        {
+            get => _isPrecedenceModeEnabled;
+            set
+            {
+                if (_isPrecedenceModeEnabled != value)
+                {
+                    _isPrecedenceModeEnabled = value;
+                    OnPropertyChanged(nameof(IsPrecedenceModeEnabled));
+                }
+            }
+        }
+
+
         public string HexValue { get => _hexValue; set { _hexValue = value; OnPropertyChanged(nameof(HexValue)); } }
         public string DecValue { get => _decValue; set { _decValue = value; OnPropertyChanged(nameof(DecValue)); } }
         public string OctValue { get => _octValue; set { _octValue = value; OnPropertyChanged(nameof(OctValue)); } }
@@ -172,8 +188,14 @@ namespace Calculator.ViewModels
             BackspaceCommand = new RelayCommand(_ => { if (_displayText.Length > 0) DisplayText = _displayText[..^1]; });
 
             MemoryClearCommand = new RelayCommand(_ => { CalculatorModel.MC(); DisplayText = "0"; });
-            MemoryPlusCommand = new RelayCommand(_ => { CalculatorModel.MPlus(ref _displayText); DisplayText = "0"; });
-            MemoryMinusCommand = new RelayCommand(_ => { CalculatorModel.MMinus(ref _displayText); DisplayText = "0"; });
+            MemoryPlusCommand = new RelayCommand(_ =>
+            {
+                CalculatorModel.MPlus(DisplayText);
+                CalculationHistory.Add($"M+: {CalculatorModel.MR()}"); // Arată noua valoare
+                DisplayText = "0";
+            });
+
+            MemoryMinusCommand = new RelayCommand(_ => { CalculatorModel.MMinus(DisplayText); DisplayText = "0"; });
             MemoryStoreCommand = new RelayCommand(_ => { CalculatorModel.MS(_displayText); DisplayText = "0"; });
             MemoryRecallCommand = new RelayCommand(_ => DisplayText = CalculatorModel.MR());
             MemoryListCommand = new RelayCommand(_ => DisplayText = CalculatorModel.MGreater());
@@ -183,7 +205,6 @@ namespace Calculator.ViewModels
             NegateCommand = new RelayCommand(_ => ApplyUnaryOp(CalculatorModel.Negate));
             ReciprocalCommand = new RelayCommand(_ => ApplyUnaryOp(CalculatorModel.Reciprocal));
             PercentCommand = new RelayCommand(_ => ApplyPercent());
-
 
             IsProgrammerMode = Properties.Settings.Default.IsProgrammerMode;
             CurrentBase = Properties.Settings.Default.LastBase;
@@ -198,16 +219,13 @@ namespace Calculator.ViewModels
                 var historyWindow = new Calculator.Views.HistoryWindow(CalculationHistory);
                 historyWindow.ShowDialog();
             });
-            MemoryStoreCommand = new RelayCommand(_ =>
-            {
-                // Stochează valoarea din display
+
+            MemoryStoreCommand = new RelayCommand(_ => {
                 var storedValue = CalculatorModel.MS(DisplayText);
-                if (storedValue != null)
+                if (!string.IsNullOrEmpty(storedValue) && storedValue != "0")
                 {
-                    // Adaugă o intrare în istoric, de exemplu "MS: [valoare stocată]"
                     CalculationHistory.Add($"MS: {storedValue}");
                 }
-                // Resetează display-ul
                 DisplayText = "0";
             });
         }
@@ -275,25 +293,27 @@ namespace Calculator.ViewModels
         {
             try
             {
-                // Dacă nu avem încă nimic în "istoric", stocăm operandul curent și operatorul.
-                if (string.IsNullOrEmpty(DisplayTextHistory))
+                if (IsPrecedenceModeEnabled)
                 {
-                    // ex: "5 +"
-                    DisplayTextHistory = DisplayText + " " + op;
-                    // Resetăm DisplayText pentru a introduce următorul operand
+                    // Adaugă numărul curent şi operatorul la expresie.
+                    DisplayTextHistory += DisplayText + " " + op + " ";
+                    // Se resetează DisplayText pentru următorul operand.
                     DisplayText = "0";
                 }
                 else
                 {
-                    // Dacă avem deja un operand+operator în DisplayTextHistory,
-                    // se calculează rezultatul intermediar
-                    CalculateResult();
-                    // Resetăm flag-ul pentru a permite concatenarea ulterioară a numărului
-                    _resultShown = false;
-                    // Acum DisplayText conține rezultatul, îl stocăm cu noul operator
-                    DisplayTextHistory = DisplayText + " " + op;
-                    // Resetăm pentru operandul următor
-                    DisplayText = "0";
+                    // Comportamentul existent (evaluare imediată la operator)
+                    if (string.IsNullOrEmpty(DisplayTextHistory))
+                    {
+                        DisplayTextHistory = DisplayText + " " + op;
+                        DisplayText = "0";
+                    }
+                    else
+                    {
+                        CalculateResult();
+                        DisplayTextHistory = DisplayText + " " + op;
+                        DisplayText = "0";
+                    }
                 }
             }
             catch
@@ -303,71 +323,86 @@ namespace Calculator.ViewModels
         }
 
 
-        // Metoda care calculează rezultatul
         private void CalculateResult()
         {
             try
             {
-                // Construim expresia completă din DisplayTextHistory și DisplayText.
-                // Exemplu: dacă DisplayTextHistory este "5 +" și DisplayText este "3", rezultă "5 + 3".
-                string fullExpression = (DisplayTextHistory + " " + DisplayText).Trim();
-                string[] parts = fullExpression.Split(' ', StringSplitOptions.RemoveEmptyEntries);
-
-                // Dacă nu avem cel puțin 3 părți (operand, operator, operand), nu facem calculul
-                if (parts.Length < 3) return;
-
-                string resultString;
-
-                // Mod Programmer
-                if (IsProgrammerMode && _currentBase != 10)
+                if (IsPrecedenceModeEnabled)
                 {
-                    int op1 = Convert.ToInt32(parts[0], _currentBase);
-                    int op2 = Convert.ToInt32(parts[2], _currentBase);
-                    int res = parts[1] switch
-                    {
-                        "+" => (int)CalculatorModel.Add(op1, op2),
-                        "-" => (int)CalculatorModel.Subtract(op1, op2),
-                        "*" => (int)CalculatorModel.Multiply(op1, op2),
-                        "/" => (int)CalculatorModel.Divide(op1, op2),
-                        "%" => (int)CalculatorModel.Modulo(op1, op2, "%"),
-                        _ => throw new InvalidOperationException()
-                    };
-
-                    resultString = Convert.ToString(res, _currentBase).ToUpper();
+                    // Construiește expresia completă
+                    string fullExpression = (DisplayTextHistory + DisplayText).Trim();
+                    // Evaluează expresia respectând ordinea operaţiilor
+                    double result = EvaluateExpression(fullExpression);
+                    // Actualizează display-ul
+                    DisplayText = result.ToString();
+                    // Opţional: se poate păstra sau curăţa istoricul expresiei
+                    DisplayTextHistory = fullExpression;
+                    _resultShown = true;
                 }
-                // Mod Standard
                 else
                 {
-                    double op1 = double.Parse(parts[0]);
-                    double op2 = double.Parse(parts[2]);
-                    double res = parts[1] switch
+                    // Comportamentul existent pentru modul secvenţial
+                    string fullExpression = (DisplayTextHistory + " " + DisplayText).Trim();
+                    string[] parts = fullExpression.Split(' ', StringSplitOptions.RemoveEmptyEntries);
+                    if (parts.Length < 3) return;
+
+                    string resultString;
+
+                    if (IsProgrammerMode && _currentBase != 10)
                     {
-                        "+" => CalculatorModel.Add(op1, op2),
-                        "-" => CalculatorModel.Subtract(op1, op2),
-                        "*" => CalculatorModel.Multiply(op1, op2),
-                        "/" => CalculatorModel.Divide(op1, op2),
-                        "%" => CalculatorModel.Modulo(op1, op2, "%"),
-                        _ => throw new InvalidOperationException()
-                    };
+                        int op1 = Convert.ToInt32(parts[0], _currentBase);
+                        int op2 = Convert.ToInt32(parts[2], _currentBase);
+                        int res = parts[1] switch
+                        {
+                            "+" => (int)CalculatorModel.Add(op1, op2),
+                            "-" => (int)CalculatorModel.Subtract(op1, op2),
+                            "*" => (int)CalculatorModel.Multiply(op1, op2),
+                            "/" => (int)CalculatorModel.Divide(op1, op2),
+                            "%" => (int)CalculatorModel.Modulo(op1, op2, "%"),
+                            _ => throw new InvalidOperationException()
+                        };
 
-                    resultString = res.ToString();
+                        resultString = Convert.ToString(res, _currentBase).ToUpper();
+                    }
+                    else
+                    {
+                        double op1 = double.Parse(parts[0]);
+                        double op2 = double.Parse(parts[2]);
+                        double res = parts[1] switch
+                        {
+                            "+" => CalculatorModel.Add(op1, op2),
+                            "-" => CalculatorModel.Subtract(op1, op2),
+                            "*" => CalculatorModel.Multiply(op1, op2),
+                            "/" => CalculatorModel.Divide(op1, op2),
+                            "%" => CalculatorModel.Modulo(op1, op2, "%"),
+                            _ => throw new InvalidOperationException()
+                        };
+
+                        resultString = res.ToString();
+                    }
+
+                    DisplayText = resultString;
+                    DisplayTextHistory = fullExpression;
+                    _resultShown = true;
                 }
-
-                // Actualizează DisplayText cu rezultatul calculului.
-                DisplayText = resultString;
-                // Actualizează DisplayTextHistory pentru a afișa doar expresia completă, fără "=" și rezultat.
-                DisplayTextHistory = fullExpression;
-
-                _resultShown = true;
             }
             catch
             {
                 DisplayText = "Eroare";
             }
         }
+        private double EvaluateExpression(string expression)
+        {
+            // Dacă se foloseşte digit grouping, elimină separatorul de mii
+            string groupSeparator = CultureInfo.CurrentCulture.NumberFormat.NumberGroupSeparator;
+            expression = expression.Replace(groupSeparator, "");
 
+            // Pentru a evalua expresia, se poate folosi DataTable.Compute
+            var table = new System.Data.DataTable();
+            object result = table.Compute(expression, "");
+            return Convert.ToDouble(result);
+        }
 
-        // Metodă pentru operatori unari (fără schimbări majore)
         private void ApplyUnaryOp(Func<double, double> op)
         {
             try

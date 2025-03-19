@@ -60,7 +60,7 @@ namespace Calculator.Views {
                 return;
             }
             _contentLoaded = true;
-            System.Uri resourceLocater = new System.Uri("/Calculator;V1.0.0.0;component/views/historywindow.xaml", System.UriKind.Relative);
+            System.Uri resourceLocater = new System.Uri("/Calculator;component/views/historywindow.xaml", System.UriKind.Relative);
             
             #line 1 "..\..\..\..\Views\HistoryWindow.xaml"
             System.Windows.Application.LoadComponent(this, resourceLocater);
