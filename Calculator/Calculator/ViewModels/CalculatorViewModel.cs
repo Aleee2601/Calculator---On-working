@@ -35,6 +35,7 @@ namespace Calculator.ViewModels
                 {
                     _displayText = value;
                     OnPropertyChanged(nameof(DisplayText));
+                    UpdateConversionValues();
                 }
             }
         }
@@ -144,6 +145,13 @@ namespace Calculator.ViewModels
         public string DecValue { get => _decValue; set { _decValue = value; OnPropertyChanged(nameof(DecValue)); } }
         public string OctValue { get => _octValue; set { _octValue = value; OnPropertyChanged(nameof(OctValue)); } }
         public string BinValue { get => _binValue; set { _binValue = value; OnPropertyChanged(nameof(BinValue)); } }
+
+
+
+
+      
+
+
 
         private string _hexValue = "0";
         private string _decValue = "0";
@@ -480,6 +488,48 @@ namespace Calculator.ViewModels
             Properties.Settings.Default.LastBase = CurrentBase;
             Properties.Settings.Default.DigitGrouping = IsDigitGroupingEnabled;
             Properties.Settings.Default.Save();
+        }
+
+        // Metoda de conversie (se apelează de fiecare dată când DisplayText se modifică)
+        private void UpdateConversionValues()
+        {
+            try
+            {
+                // Folosim baza curentă pentru conversie
+                int currentBase = CurrentBase;
+                // Eliminăm separatorii de grupare (ex: „.” sau „,” în funcție de cultură)
+                string groupSeparator = CultureInfo.CurrentCulture.NumberFormat.NumberGroupSeparator;
+                string cleanedText = DisplayText.Replace(groupSeparator, "");
+
+                // Convertim textul curat la un număr întreg în baza curentă
+                int value = Convert.ToInt32(cleanedText, currentBase);
+
+                // Actualizăm proprietățile de conversie
+                DecValue = value.ToString();
+                HexValue = value.ToString("X");
+                OctValue = ConvertToOctal(value);
+                BinValue = Convert.ToString(value, 2);
+            }
+            catch (Exception)
+            {
+                // Dacă apare o eroare (ex. text invalid) se pot opta diferite strategii:
+                // aici, de exemplu, nu actualizăm conversiile.
+            }
+        }
+
+        private string ConvertToOctal(int number)
+        {
+            if (number == 0)
+                return "0";
+
+            string octal = "";
+            while (number > 0)
+            {
+                int remainder = number % 8;
+                octal = remainder.ToString() + octal;
+                number /= 8;
+            }
+            return octal;
         }
 
         #endregion

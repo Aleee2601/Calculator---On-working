@@ -225,9 +225,7 @@ namespace Calculator.Views
             }
         }
 
-        /// <summary>
-        /// Actualizează textul butonului din Popup pentru schimbarea modului.
-        /// </summary>
+        
         private void UpdateModeSwitchButton()
         {
             if (viewModel.IsProgrammerMode)
@@ -258,18 +256,30 @@ namespace Calculator.Views
 
             try
             {
-                int value = Convert.ToInt32(txtDisplay.Text, currentBase);
+                // Eliminăm separatorii de grupare (ex: „.” sau „,” în funcție de cultură)
+                string groupSeparator = CultureInfo.CurrentCulture.NumberFormat.NumberGroupSeparator;
+                string cleanedText = txtDisplay.Text.Replace(groupSeparator, "");
+
+                // Convertim textul curat la un număr întreg în baza curentă
+                int value = Convert.ToInt32(cleanedText, currentBase);
+
+                // Actualizăm proprietățile de conversie
                 viewModel.DecValue = value.ToString();
                 viewModel.HexValue = value.ToString("X");
                 viewModel.OctValue = ConvertToOctal(value);
                 viewModel.BinValue = Convert.ToString(value, 2);
             }
-            catch { }
+            catch (Exception ex)
+            {
+                // Poți adăuga aici logare sau altă manipulare a erorii, dacă e necesar.
+            }
         }
 
         private string ConvertToOctal(int number)
         {
-            if (number == 0) return "0";
+            if (number == 0)
+                return "0";
+
             string octal = "";
             while (number > 0)
             {

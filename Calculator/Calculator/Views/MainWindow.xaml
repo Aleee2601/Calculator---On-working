@@ -152,7 +152,7 @@
                 <!-- Display-ul curent -->
                 <TextBox x:Name="txtDisplay"
                          Grid.Row="1"
-                         Text="{Binding DisplayText}"
+                         Text="{Binding DisplayText, Mode=TwoWay}"
                          FontSize="{Binding DisplayFontSize}"
                          Background="#1E1E1E"
                          Foreground="White"
@@ -188,8 +188,8 @@
             </Border>
         </Popup>
 
-        <!-- Popup-ul secundar pentru optiunile File (Cut, Copy, Paste) -->
-        <Popup x:Name="popupFile"
+    
+       <Popup x:Name="popupFile"
        PlacementTarget="{Binding ElementName=menuFile}"
        Placement="Right"
        StaysOpen="False"
@@ -217,13 +217,11 @@
 
 
         <Grid Grid.Row="1" Grid.ColumnSpan="2">
-            <!-- Standard Mode Grid -->
             <Grid x:Name="StandardGrid" Visibility="Collapsed">
                 <Grid.RowDefinitions>
                     <RowDefinition Height="Auto"/>
                     <RowDefinition Height="*"/>
                 </Grid.RowDefinitions>
-                <!-- Rândul cu butoanele de memorie -->
                 <Grid Grid.Row="0">
                     <Grid.ColumnDefinitions>
                         <ColumnDefinition Width="*"/>
@@ -241,7 +239,6 @@
 
                     <Button Style="{StaticResource CalcButtonStyle}" Grid.Column="5" Content="M˅" Command="{Binding ShowHistoryCommand}"/>
                 </Grid>
-                <!-- Grid-ul principal cu butoane -->
                 <Grid Grid.Row="1">
                     <Grid.RowDefinitions>
                         <RowDefinition/>
@@ -257,32 +254,32 @@
                         <ColumnDefinition/>
                         <ColumnDefinition/>
                     </Grid.ColumnDefinitions>
-                    <!-- Row 0: Operații de bază -->
+                    
                     <Button Style="{StaticResource CalcButtonStyle}" Grid.Row="0" Grid.Column="0" Content="%" Command="{Binding PercentCommand}" />
                     <Button Style="{StaticResource CalcButtonStyle}" Grid.Row="0" Grid.Column="1" Content="CE" Command="{Binding ClearEntryCommand}"/>
                     <Button Style="{StaticResource CalcButtonStyle}" Grid.Row="0" Grid.Column="2" Content="C" Command="{Binding ClearCommand}"/>
                     <Button Style="{StaticResource CalcButtonStyle}" Grid.Row="0" Grid.Column="3" Content="⌫" Command="{Binding BackspaceCommand}"/>
-                    <!-- Row 1: Operații speciale -->
+   
                     <Button Style="{StaticResource CalcButtonStyle}" Grid.Row="1" Grid.Column="0" Content="1/x" Command="{Binding ReciprocalCommand}"/>
                     <Button Style="{StaticResource CalcButtonStyle}" Grid.Row="1" Grid.Column="1" Content="x²" Command="{Binding SquareCommand}"/>
                     <Button Style="{StaticResource CalcButtonStyle}" Grid.Row="1" Grid.Column="2" Content="√x" Command="{Binding SquareRootCommand}"/>
                     <Button Style="{StaticResource CalcButtonStyle}" Grid.Row="1" Grid.Column="3" Content="÷" Command="{Binding OperatorCommand}" CommandParameter="/"/>
-                    <!-- Row 2: Butoane numerice și operator multiplicare -->
+        
                     <Button Style="{StaticResource CalcButtonStyle}" Grid.Row="2" Grid.Column="0" Content="7" Command="{Binding NumberCommand}" CommandParameter="7"/>
                     <Button Style="{StaticResource CalcButtonStyle}" Grid.Row="2" Grid.Column="1" Content="8" Command="{Binding NumberCommand}" CommandParameter="8"/>
                     <Button Style="{StaticResource CalcButtonStyle}" Grid.Row="2" Grid.Column="2" Content="9" Command="{Binding NumberCommand}" CommandParameter="9"/>
                     <Button Style="{StaticResource CalcButtonStyle}" Grid.Row="2" Grid.Column="3" Content="×" Command="{Binding OperatorCommand}" CommandParameter="*"/>
-                    <!-- Row 3: Butoane numerice și operator scădere -->
+            
                     <Button Style="{StaticResource CalcButtonStyle}" Grid.Row="3" Grid.Column="0" Content="4" Command="{Binding NumberCommand}" CommandParameter="4"/>
                     <Button Style="{StaticResource CalcButtonStyle}" Grid.Row="3" Grid.Column="1" Content="5" Command="{Binding NumberCommand}" CommandParameter="5"/>
                     <Button Style="{StaticResource CalcButtonStyle}" Grid.Row="3" Grid.Column="2" Content="6" Command="{Binding NumberCommand}" CommandParameter="6"/>
                     <Button Style="{StaticResource CalcButtonStyle}" Grid.Row="3" Grid.Column="3" Content="−" Command="{Binding OperatorCommand}" CommandParameter="-"/>
-                    <!-- Row 4: Butoane numerice și operator adunare -->
+       
                     <Button Style="{StaticResource CalcButtonStyle}" Grid.Row="4" Grid.Column="0" Content="1" Command="{Binding NumberCommand}" CommandParameter="1"/>
                     <Button Style="{StaticResource CalcButtonStyle}" Grid.Row="4" Grid.Column="1" Content="2" Command="{Binding NumberCommand}" CommandParameter="2"/>
                     <Button Style="{StaticResource CalcButtonStyle}" Grid.Row="4" Grid.Column="2" Content="3" Command="{Binding NumberCommand}" CommandParameter="3"/>
                     <Button Style="{StaticResource CalcButtonStyle}" Grid.Row="4" Grid.Column="3" Content="+" Command="{Binding OperatorCommand}" CommandParameter="+"/>
-                    <!-- Row 5: Semn, zero, punct și egal -->
+     
                     <Button Style="{StaticResource CalcButtonStyle}" Grid.Row="5" Grid.Column="0" Content="±" Command="{Binding NegateCommand}"/>
                     <Button Style="{StaticResource CalcButtonStyle}" Grid.Row="5" Grid.Column="1" Content="0" Command="{Binding NumberCommand}" CommandParameter="0"/>
                     <Button Style="{StaticResource CalcButtonStyle}" Grid.Row="5" Grid.Column="2" Content="." Command="{Binding NumberCommand}" CommandParameter="."/>
@@ -290,7 +287,7 @@
                 </Grid>
             </Grid>
 
-            <!-- PROGRAMMER MODE GRID (similar structură, de exemplu) -->
+            <!-- PROGRAMMER MODE GRID -->
             <Grid x:Name="ProgrammerGrid" Visibility="Visible">
                 <Grid.RowDefinitions>
                     <RowDefinition Height="Auto"/>
@@ -309,7 +306,7 @@
                                  Margin="0,5,0,0">
                         <StackPanel Orientation="Horizontal">
                             <TextBlock Text="HEX" Width="40"/>
-                            <TextBlock Text="{Binding HexValue}"/>
+                            <TextBlock Text="{Binding HexValue}" />
                         </StackPanel>
                     </RadioButton>
                     <RadioButton x:Name="btnDec"
@@ -321,7 +318,7 @@
                                  Margin="0,5,0,0">
                         <StackPanel Orientation="Horizontal">
                             <TextBlock Text="DEC" Width="40"/>
-                            <TextBlock Text="{Binding DecValue}"/>
+                            <TextBlock Text="{Binding DecValue}" />
                         </StackPanel>
                     </RadioButton>
                     <RadioButton x:Name="btnOct"
@@ -332,7 +329,7 @@
                                  Margin="0,5,0,0">
                         <StackPanel Orientation="Horizontal">
                             <TextBlock Text="OCT" Width="40"/>
-                            <TextBlock Text="{Binding OctValue}"/>
+                            <TextBlock Text="{Binding OctValue}" />
                         </StackPanel>
                     </RadioButton>
                     <RadioButton x:Name="btnBin"
@@ -343,7 +340,7 @@
                                  Margin="0,5,0,0">
                         <StackPanel Orientation="Horizontal">
                             <TextBlock Text="BIN" Width="40"/>
-                            <TextBlock Text="{Binding BinValue}"/>
+                            <TextBlock Text="{Binding BinValue}" />
                         </StackPanel>
                     </RadioButton>
                 </StackPanel>
@@ -366,38 +363,37 @@
                             <ColumnDefinition/>
                             <ColumnDefinition/>
                         </Grid.ColumnDefinitions>
-                        <!-- Exemplu de butoane pentru modul Programmer -->
-                        <!-- Row 0 -->
+         
                         <Button Style="{StaticResource CalcButtonStyle}" Grid.Row="0" Grid.Column="0" Content="A" Command="{Binding NumberCommand}" CommandParameter="A"/>
                         <Button Style="{StaticResource CalcButtonStyle}" Grid.Row="0" Grid.Column="1" Content="%" Command="{Binding PercentCommand}" Margin="4,4,4,4" />
                         <Button Style="{StaticResource CalcButtonStyle}" Grid.Row="0" Grid.Column="2" Content="CE" Command="{Binding ClearEntryCommand}"/>
                         <Button Style="{StaticResource CalcButtonStyle}" Grid.Row="0" Grid.Column="3" Content="CLR" Command="{Binding ClearCommand}"/>
                         <Button Style="{StaticResource CalcButtonStyle}" Grid.Row="0" Grid.Column="4" Content="⌫" Command="{Binding BackspaceCommand}"/>
-                        <!-- Row 1 -->
+                 
                         <Button Style="{StaticResource CalcButtonStyle}" Grid.Row="1" Grid.Column="0" Content="B" Command="{Binding NumberCommand}" CommandParameter="B"/>
                         <Button Style="{StaticResource CalcButtonStyle}" Grid.Row="1" Grid.Column="1" Content="1/x" Command="{Binding ReciprocalCommand}"/>
                         <Button Style="{StaticResource CalcButtonStyle}" Grid.Row="1" Grid.Column="2" Content="x²" Command="{Binding SquareCommand}"/>
                         <Button Style="{StaticResource CalcButtonStyle}" Grid.Row="1" Grid.Column="3" Content="√x" Command="{Binding SquareRootCommand}"/>
                         <Button Style="{StaticResource CalcButtonStyle}" Grid.Row="1" Grid.Column="4" Content="÷" Command="{Binding OperatorCommand}" CommandParameter="/"/>
-                        <!-- Row 2 -->
+              
                         <Button Style="{StaticResource CalcButtonStyle}" Grid.Row="2" Grid.Column="0" Content="C" Command="{Binding NumberCommand}" CommandParameter="C"/>
                         <Button Style="{StaticResource CalcButtonStyle}" Grid.Row="2" Grid.Column="1" Content="7" Command="{Binding NumberCommand}" CommandParameter="7"/>
                         <Button Style="{StaticResource CalcButtonStyle}" Grid.Row="2" Grid.Column="2" Content="8" Command="{Binding NumberCommand}" CommandParameter="8"/>
                         <Button Style="{StaticResource CalcButtonStyle}" Grid.Row="2" Grid.Column="3" Content="9" Command="{Binding NumberCommand}" CommandParameter="9"/>
                         <Button Style="{StaticResource CalcButtonStyle}" Grid.Row="2" Grid.Column="4" Content="×" Command="{Binding OperatorCommand}" CommandParameter="*"/>
-                        <!-- Row 3 -->
+           
                         <Button Style="{StaticResource CalcButtonStyle}" Grid.Row="3" Grid.Column="0" Content="D" Command="{Binding NumberCommand}" CommandParameter="D"/>
                         <Button Style="{StaticResource CalcButtonStyle}" Grid.Row="3" Grid.Column="1" Content="4" Command="{Binding NumberCommand}" CommandParameter="4"/>
                         <Button Style="{StaticResource CalcButtonStyle}" Grid.Row="3" Grid.Column="2" Content="5" Command="{Binding NumberCommand}" CommandParameter="5"/>
                         <Button Style="{StaticResource CalcButtonStyle}" Grid.Row="3" Grid.Column="3" Content="6" Command="{Binding NumberCommand}" CommandParameter="6"/>
                         <Button Style="{StaticResource CalcButtonStyle}" Grid.Row="3" Grid.Column="4" Content="−" Command="{Binding OperatorCommand}" CommandParameter="-"/>
-                        <!-- Row 4 -->
+     
                         <Button Style="{StaticResource CalcButtonStyle}" Grid.Row="4" Grid.Column="0" Content="E" Command="{Binding NumberCommand}" CommandParameter="E"/>
                         <Button Style="{StaticResource CalcButtonStyle}" Grid.Row="4" Grid.Column="1" Content="1" Command="{Binding NumberCommand}" CommandParameter="1"/>
                         <Button Style="{StaticResource CalcButtonStyle}" Grid.Row="4" Grid.Column="2" Content="2" Command="{Binding NumberCommand}" CommandParameter="2"/>
                         <Button Style="{StaticResource CalcButtonStyle}" Grid.Row="4" Grid.Column="3" Content="3" Command="{Binding NumberCommand}" CommandParameter="3"/>
                         <Button Style="{StaticResource CalcButtonStyle}" Grid.Row="4" Grid.Column="4" Content="+" Command="{Binding OperatorCommand}" CommandParameter="+"/>
-                        <!-- Row 5 -->
+         
                         <Button Style="{StaticResource CalcButtonStyle}" Grid.Row="5" Grid.Column="0" Content="F" Command="{Binding NumberCommand}" CommandParameter="F"/>
                         <Button Style="{StaticResource CalcButtonStyle}" Grid.Row="5" Grid.Column="1" Content="±" Command="{Binding NegateCommand}"/>
                         <Button Style="{StaticResource CalcButtonStyle}" Grid.Row="5" Grid.Column="2" Content="0" Command="{Binding NumberCommand}" CommandParameter="0"/>
