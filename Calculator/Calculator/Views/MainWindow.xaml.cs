@@ -193,8 +193,16 @@ namespace Calculator.Views
             viewModel.IsProgrammerMode = !viewModel.IsProgrammerMode;
             UpdateModeView();
             UpdateModeSwitchButton();
-            popupMenu.IsOpen = false; // Închide popup-ul după schimbare
+
+            // Dacă te afli în modul Programmer, actualizează starea butoanelor pentru baza curentă
+            if (viewModel.IsProgrammerMode)
+            {
+                UpdateButtonsForBase(viewModel.CurrentBase);
+            }
+
+            popupMenu.IsOpen = false;
         }
+
 
         private void About_Click(object sender, RoutedEventArgs e)
         {
