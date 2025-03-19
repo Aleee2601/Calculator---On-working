@@ -13,7 +13,8 @@ namespace Calculator.Views
     public partial class MainWindow : Window
     {
         private CalculatorViewModel viewModel;
-
+ 
+        #region Constructor & Lifecycle
         public MainWindow()
         {
             InitializeComponent();
@@ -21,13 +22,6 @@ namespace Calculator.Views
             DataContext = viewModel;
             Loaded += MainWindow_Loaded;
             Closing += MainWindow_Closing;
-        }
-
-        #region Lifecycle
-
-        private void MainWindow_Closing(object sender, CancelEventArgs e)
-        {
-            viewModel.SaveSettings();
         }
 
         private void MainWindow_Loaded(object sender, RoutedEventArgs e)
@@ -41,16 +35,18 @@ namespace Calculator.Views
             }
         }
 
+        private void MainWindow_Closing(object sender, CancelEventArgs e)
+        {
+            viewModel.SaveSettings();
+        }
         #endregion
 
         #region Base Management
-
         private void ApplyInitialBase()
         {
             if (viewModel == null) return;
 
             RadioButton target = null;
-
             if (viewModel.CurrentBase == 16)
                 target = btnHex;
             else if (viewModel.CurrentBase == 10)
@@ -84,11 +80,9 @@ namespace Calculator.Views
         private void UpdateButtonsForBase(int baseVal)
         {
             var allButtons = GetAllButtons(ProgrammerGrid);
-
             foreach (var btn in allButtons)
             {
                 string label = btn.Content?.ToString().ToUpper() ?? "";
-
                 if (label.Length == 1 && "0123456789ABCDEF".Contains(label))
                 {
                     btn.IsEnabled = IsValidDigitForBase(label, baseVal);
@@ -102,7 +96,6 @@ namespace Calculator.Views
 
         private bool IsValidDigitForBase(string digit, int baseVal)
         {
-            // Același algoritm ca în metoda UpdateButtonsForBase:
             return digit switch
             {
                 "0" => true,
@@ -139,11 +132,9 @@ namespace Calculator.Views
             }
             return result;
         }
-
         #endregion
 
         #region UI Actions
-
         private void Copy_Click(object sender, RoutedEventArgs e)
         {
             Clipboard.SetText(txtDisplay.Text);
@@ -161,10 +152,6 @@ namespace Calculator.Views
             viewModel.DisplayText = "0";
         }
 
-        /// <summary>
-        /// Evenimentul apelat la clic pe butonul Hamburger.
-        /// Schimbă iconița de la "☰" la "▼" și inversează deschiderea Popup-ului.
-        /// </summary>
         private void btnHamburger_Click(object sender, RoutedEventArgs e)
         {
             if (btnHamburger.Content.ToString() == "☰")
@@ -185,16 +172,13 @@ namespace Calculator.Views
             MessageBox.Show("Help clicked!", "Info", MessageBoxButton.OK, MessageBoxImage.Information);
         }
 
-        /// <summary>
-        /// Evenimentul apelat la clic pe butonul din Popup pentru schimbarea modului.
-        /// </summary>
         private void btnModeSwitch_Click(object sender, RoutedEventArgs e)
         {
             viewModel.IsProgrammerMode = !viewModel.IsProgrammerMode;
             UpdateModeView();
             UpdateModeSwitchButton();
 
-            // Dacă te afli în modul Programmer, actualizează starea butoanelor pentru baza curentă
+            // In Programmer mode, update button state for the current base.
             if (viewModel.IsProgrammerMode)
             {
                 UpdateButtonsForBase(viewModel.CurrentBase);
@@ -203,19 +187,13 @@ namespace Calculator.Views
             popupMenu.IsOpen = false;
         }
 
-
         private void About_Click(object sender, RoutedEventArgs e)
         {
             MessageBox.Show("Aplicatie realizata de Alexandra Onose, grupa 10LF233", "Despre aplicatie", MessageBoxButton.OK, MessageBoxImage.Information);
         }
-
         #endregion
 
         #region UI Helpers
-
-        /// <summary>
-        /// Actualizează vizibilitatea grid-urilor în funcție de modul curent.
-        /// </summary>
         private void UpdateModeView()
         {
             if (StandardGrid != null && ProgrammerGrid != null)
@@ -225,24 +203,15 @@ namespace Calculator.Views
             }
         }
 
-        
         private void UpdateModeSwitchButton()
         {
-            if (viewModel.IsProgrammerMode)
-            {
-                btnModeSwitch.Content = "Switch to Standard";
-            }
-            else
-            {
-                btnModeSwitch.Content = "Switch to Programmer";
-            }
-        }
-        private void menuFile_Click(object sender, RoutedEventArgs e)
-        {
-            // Deschide popup-ul secundar cu opțiunile pentru File
-            popupFile.IsOpen = true;
+            btnModeSwitch.Content = viewModel.IsProgrammerMode ? "Switch to Standard" : "Switch to Programmer";
         }
 
+        private void menuFile_Click(object sender, RoutedEventArgs e)
+        {
+            popupFile.IsOpen = true;
+        }
 
         private void txtDisplay_TextChanged(object sender, TextChangedEventArgs e)
         {
@@ -253,17 +222,12 @@ namespace Calculator.Views
             }
 
             int currentBase = viewModel.CurrentBase;
-
             try
             {
-                // Eliminăm separatorii de grupare (ex: „.” sau „,” în funcție de cultură)
                 string groupSeparator = CultureInfo.CurrentCulture.NumberFormat.NumberGroupSeparator;
                 string cleanedText = txtDisplay.Text.Replace(groupSeparator, "");
-
-                // Convertim textul curat la un număr întreg în baza curentă
                 int value = Convert.ToInt32(cleanedText, currentBase);
 
-                // Actualizăm proprietățile de conversie
                 viewModel.DecValue = value.ToString();
                 viewModel.HexValue = value.ToString("X");
                 viewModel.OctValue = ConvertToOctal(value);
@@ -271,7 +235,7 @@ namespace Calculator.Views
             }
             catch (Exception ex)
             {
-                // Poți adăuga aici logare sau altă manipulare a erorii, dacă e necesar.
+                // Optionally log or handle conversion errors.
             }
         }
 
@@ -289,22 +253,18 @@ namespace Calculator.Views
             }
             return octal;
         }
-
         #endregion
 
-        #region Keyboard
-
+        #region Keyboard Handling
         private void Window_PreviewKeyDown(object sender, KeyEventArgs e)
         {
             var vm = DataContext as CalculatorViewModel;
             if (vm == null) return;
 
-            // Tratare pentru modul Programmer: verificăm dacă tasta apăsată este o cifră sau literă validă pentru baza curentă
+            // Programmer mode: handle valid digit/letter keys.
             if (vm.IsProgrammerMode)
             {
                 string keyStr = null;
-
-                // Pentru tastele de tip digit (clasic și numpad)
                 if (e.Key >= Key.D0 && e.Key <= Key.D9)
                 {
                     keyStr = (e.Key - Key.D0).ToString();
@@ -313,14 +273,11 @@ namespace Calculator.Views
                 {
                     keyStr = (e.Key - Key.NumPad0).ToString();
                 }
-                // Pentru tastele A-F
                 else if (e.Key >= Key.A && e.Key <= Key.F)
                 {
                     keyStr = e.Key.ToString().ToUpper();
                 }
 
-                // Dacă am identificat o tastă care reprezintă o cifră sau literă,
-                // verificăm dacă este validă pentru baza curentă.
                 if (!string.IsNullOrEmpty(keyStr))
                 {
                     if (IsValidDigitForBase(keyStr, vm.CurrentBase))
@@ -332,7 +289,7 @@ namespace Calculator.Views
                 }
             }
 
-            // Tratarea tastelor în modul Standard sau pentru operatori și alte acțiuni
+            // Standard mode and other key handling.
             if (e.Key == Key.Enter)
             {
                 if (vm.EqualsCommand.CanExecute(null))
@@ -353,7 +310,6 @@ namespace Calculator.Views
             }
             else if (e.Key >= Key.D0 && e.Key <= Key.D9)
             {
-                // În modul Standard se procesează direct
                 string digit = (e.Key - Key.D0).ToString();
                 vm.NumberCommand.Execute(digit);
                 e.Handled = true;
@@ -391,8 +347,6 @@ namespace Calculator.Views
                 e.Handled = true;
             }
         }
-
-
         #endregion
     }
 }

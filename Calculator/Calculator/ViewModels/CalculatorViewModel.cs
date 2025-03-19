@@ -9,22 +9,32 @@ namespace Calculator.ViewModels
 {
     public class CalculatorViewModel : INotifyPropertyChanged
     {
-        #region Fields & Properties
-
+        #region Fields
+        // Backing fields for properties
         private string _displayText = "0";
         private string _displayTextHistory = "";
         private int _currentBase = 10;
         private string _currentMode = "Standard";
-        //private bool _isProgrammerMode = false;
         private double _displayFontSize = 36;
         private bool _isDigitGroupingEnabled = true;
-        private CalculatorModel _calculator = new CalculatorModel();
-        public ObservableCollection<string> CalculationHistory { get; set; } = new ObservableCollection<string>();
         private bool _resultShown = false;
+        private bool _isProgrammerMode;
+        private bool _isPrecedenceModeEnabled = false;
 
+        // Fields for conversion values
+        private string _hexValue = "0";
+        private string _decValue = "0";
+        private string _octValue = "0";
+        private string _binValue = "0";
 
+        // Instance of the calculator model and calculation history
+        private CalculatorModel _calculator = new CalculatorModel();
+        #endregion
 
+        #region Properties
         public event PropertyChangedEventHandler PropertyChanged;
+
+        public ObservableCollection<string> CalculationHistory { get; set; } = new ObservableCollection<string>();
 
         public string DisplayText
         {
@@ -40,8 +50,6 @@ namespace Calculator.ViewModels
             }
         }
 
-
-        // New property for showing the history (the previous number and operator)
         public string DisplayTextHistory
         {
             get => _displayTextHistory;
@@ -68,7 +76,6 @@ namespace Calculator.ViewModels
             }
         }
 
-        
         public string CurrentMode
         {
             get => _currentMode;
@@ -82,7 +89,6 @@ namespace Calculator.ViewModels
             }
         }
 
-        private bool _isProgrammerMode;
         public bool IsProgrammerMode
         {
             get => _isProgrammerMode;
@@ -96,8 +102,6 @@ namespace Calculator.ViewModels
                 }
             }
         }
-
-
 
         public int CurrentBase
         {
@@ -126,7 +130,6 @@ namespace Calculator.ViewModels
             }
         }
 
-        private bool _isPrecedenceModeEnabled = false;
         public bool IsPrecedenceModeEnabled
         {
             get => _isPrecedenceModeEnabled;
@@ -140,28 +143,32 @@ namespace Calculator.ViewModels
             }
         }
 
+        public string HexValue
+        {
+            get => _hexValue;
+            set { _hexValue = value; OnPropertyChanged(nameof(HexValue)); }
+        }
 
-        public string HexValue { get => _hexValue; set { _hexValue = value; OnPropertyChanged(nameof(HexValue)); } }
-        public string DecValue { get => _decValue; set { _decValue = value; OnPropertyChanged(nameof(DecValue)); } }
-        public string OctValue { get => _octValue; set { _octValue = value; OnPropertyChanged(nameof(OctValue)); } }
-        public string BinValue { get => _binValue; set { _binValue = value; OnPropertyChanged(nameof(BinValue)); } }
+        public string DecValue
+        {
+            get => _decValue;
+            set { _decValue = value; OnPropertyChanged(nameof(DecValue)); }
+        }
 
+        public string OctValue
+        {
+            get => _octValue;
+            set { _octValue = value; OnPropertyChanged(nameof(OctValue)); }
+        }
 
-
-
-      
-
-
-
-        private string _hexValue = "0";
-        private string _decValue = "0";
-        private string _octValue = "0";
-        private string _binValue = "0";
-
+        public string BinValue
+        {
+            get => _binValue;
+            set { _binValue = value; OnPropertyChanged(nameof(BinValue)); }
+        }
         #endregion
 
         #region Commands
-
         public ICommand NumberCommand { get; }
         public ICommand OperatorCommand { get; }
         public ICommand EqualsCommand { get; }
@@ -180,31 +187,36 @@ namespace Calculator.ViewModels
         public ICommand ReciprocalCommand { get; }
         public ICommand PercentCommand { get; }
         public ICommand ShowHistoryCommand { get; }
-
-
         #endregion
 
         #region Constructor
-
         public CalculatorViewModel()
         {
+            // Command Initialization
             NumberCommand = new RelayCommand(param => AppendNumber(param.ToString()));
             OperatorCommand = new RelayCommand(param => SetOperator(param.ToString()));
             EqualsCommand = new RelayCommand(_ => CalculateResult());
             ClearCommand = new RelayCommand(_ => Clear());
             ClearEntryCommand = new RelayCommand(_ => DisplayText = "0");
-            BackspaceCommand = new RelayCommand(_ => { if (_displayText.Length > 0) DisplayText = _displayText[..^1]; });
+            BackspaceCommand = new RelayCommand(_ =>
+            {
+                if (_displayText.Length > 0)
+                    DisplayText = _displayText[..^1];
+            });
 
             MemoryClearCommand = new RelayCommand(_ => { CalculatorModel.MC(); DisplayText = "0"; });
             MemoryPlusCommand = new RelayCommand(_ =>
             {
                 CalculatorModel.MPlus(DisplayText);
-                CalculationHistory.Add($"M+: {CalculatorModel.MR()}"); // Arată noua valoare
+                CalculationHistory.Add($"M+: {CalculatorModel.MR()}");
                 DisplayText = "0";
             });
-
-            MemoryMinusCommand = new RelayCommand(_ => { CalculatorModel.MMinus(DisplayText); DisplayText = "0"; });
-            MemoryStoreCommand = new RelayCommand(_ => { CalculatorModel.MS(_displayText); DisplayText = "0"; });
+            MemoryMinusCommand = new RelayCommand(_ =>
+            {
+                CalculatorModel.MMinus(DisplayText);
+                DisplayText = "0";
+            });
+            MemoryStoreCommand = new RelayCommand(_ => { CalculatorModel.MS(DisplayText); DisplayText = "0"; });
             MemoryRecallCommand = new RelayCommand(_ => DisplayText = CalculatorModel.MR());
             MemoryListCommand = new RelayCommand(_ => DisplayText = CalculatorModel.MGreater());
 
@@ -214,21 +226,22 @@ namespace Calculator.ViewModels
             ReciprocalCommand = new RelayCommand(_ => ApplyUnaryOp(CalculatorModel.Reciprocal));
             PercentCommand = new RelayCommand(_ => ApplyPercent());
 
+            // Load saved settings
             IsProgrammerMode = Properties.Settings.Default.IsProgrammerMode;
             CurrentBase = Properties.Settings.Default.LastBase;
             IsDigitGroupingEnabled = Properties.Settings.Default.DigitGrouping;
-
             SetBase(CurrentBase);
-
 
             ShowHistoryCommand = new RelayCommand(_ =>
             {
-                // Creăm și afișăm fereastra de istoric
+                // Create and show the history window
                 var historyWindow = new Calculator.Views.HistoryWindow(CalculationHistory);
                 historyWindow.ShowDialog();
             });
 
-            MemoryStoreCommand = new RelayCommand(_ => {
+            // Overriding MemoryStoreCommand for history update
+            MemoryStoreCommand = new RelayCommand(_ =>
+            {
                 var storedValue = CalculatorModel.MS(DisplayText);
                 if (!string.IsNullOrEmpty(storedValue) && storedValue != "0")
                 {
@@ -237,25 +250,19 @@ namespace Calculator.ViewModels
                 DisplayText = "0";
             });
         }
-
-
         #endregion
 
         #region Core Logic
         private void Clear()
         {
-            DisplayText = "0"; // Resetăm display-ul
-            DisplayTextHistory = ""; // Resetăm istoricul operației curente
-            CalculationHistory.Clear(); // Ștergem întregul istoric de calcule
-            _resultShown = false; // Resetăm flag-ul de rezultat afișat
+            DisplayText = "0";           // Reset the display
+            DisplayTextHistory = "";     // Clear the operation history
+            CalculationHistory.Clear();  // Clear calculation history
+            _resultShown = false;        // Reset the result flag
         }
 
-
-        // Metoda care inserează cifre în DisplayText (rămâne aproape neschimbată)
         private void AppendNumber(string number)
         {
-            // Dacă s-a afișat rezultatul și se introduce o nouă cifră,
-            // resetează calculatorul pentru a începe o nouă operație.
             if (_resultShown)
             {
                 DisplayText = "0";
@@ -270,47 +277,42 @@ namespace Calculator.ViewModels
             if (number == decimalSeparator && unformatted.Contains(decimalSeparator))
                 return;
 
-            if (unformatted == "0" && number != decimalSeparator)
-                unformatted = number;
-            else
-                unformatted += number;
+            unformatted = (unformatted == "0" && number != decimalSeparator)
+                ? number
+                : unformatted + number;
 
             string digitsOnly = unformatted.Replace(decimalSeparator, "");
             if (digitsOnly.Length > 16) return;
 
             if (decimal.TryParse(unformatted, out decimal parsed))
             {
-                if (IsDigitGroupingEnabled)
-                    DisplayText = unformatted.Contains(decimalSeparator)
+                DisplayText = IsDigitGroupingEnabled
+                    ? (unformatted.Contains(decimalSeparator)
                         ? parsed.ToString("N", CultureInfo.CurrentCulture)
-                        : parsed.ToString("N0", CultureInfo.CurrentCulture);
-                else
-                    DisplayText = unformatted.Contains(decimalSeparator)
+                        : parsed.ToString("N0", CultureInfo.CurrentCulture))
+                    : (unformatted.Contains(decimalSeparator)
                         ? parsed.ToString("F", CultureInfo.CurrentCulture)
-                        : parsed.ToString("F0", CultureInfo.CurrentCulture);
+                        : parsed.ToString("F0", CultureInfo.CurrentCulture));
             }
             else
+            {
                 DisplayText = unformatted;
+            }
 
             DisplayFontSize = digitsOnly.Length <= 8 ? 36 : 36 - 1.5 * (digitsOnly.Length - 8);
         }
 
-
-        // Metoda care setează operatorul
         private void SetOperator(string op)
         {
             try
             {
                 if (IsPrecedenceModeEnabled)
                 {
-                    // Adaugă numărul curent şi operatorul la expresie.
                     DisplayTextHistory += DisplayText + " " + op + " ";
-                    // Se resetează DisplayText pentru următorul operand.
                     DisplayText = "0";
                 }
                 else
                 {
-                    // Comportamentul existent (evaluare imediată la operator)
                     if (string.IsNullOrEmpty(DisplayTextHistory))
                     {
                         DisplayTextHistory = DisplayText + " " + op;
@@ -330,26 +332,20 @@ namespace Calculator.ViewModels
             }
         }
 
-
         private void CalculateResult()
         {
             try
             {
                 if (IsPrecedenceModeEnabled)
                 {
-                    // Construiește expresia completă
                     string fullExpression = (DisplayTextHistory + DisplayText).Trim();
-                    // Evaluează expresia respectând ordinea operaţiilor
                     double result = EvaluateExpression(fullExpression);
-                    // Actualizează display-ul
                     DisplayText = result.ToString();
-                    // Opţional: se poate păstra sau curăţa istoricul expresiei
                     DisplayTextHistory = fullExpression;
                     _resultShown = true;
                 }
                 else
                 {
-                    // Comportamentul existent pentru modul secvenţial
                     string fullExpression = (DisplayTextHistory + " " + DisplayText).Trim();
                     string[] parts = fullExpression.Split(' ', StringSplitOptions.RemoveEmptyEntries);
                     if (parts.Length < 3) return;
@@ -369,7 +365,6 @@ namespace Calculator.ViewModels
                             "%" => (int)CalculatorModel.Modulo(op1, op2, "%"),
                             _ => throw new InvalidOperationException()
                         };
-
                         resultString = Convert.ToString(res, _currentBase).ToUpper();
                     }
                     else
@@ -385,7 +380,6 @@ namespace Calculator.ViewModels
                             "%" => CalculatorModel.Modulo(op1, op2, "%"),
                             _ => throw new InvalidOperationException()
                         };
-
                         resultString = res.ToString();
                     }
 
@@ -399,13 +393,11 @@ namespace Calculator.ViewModels
                 DisplayText = "Eroare";
             }
         }
+
         private double EvaluateExpression(string expression)
         {
-            // Dacă se foloseşte digit grouping, elimină separatorul de mii
             string groupSeparator = CultureInfo.CurrentCulture.NumberFormat.NumberGroupSeparator;
             expression = expression.Replace(groupSeparator, "");
-
-            // Pentru a evalua expresia, se poate folosi DataTable.Compute
             var table = new System.Data.DataTable();
             object result = table.Compute(expression, "");
             return Convert.ToDouble(result);
@@ -434,16 +426,12 @@ namespace Calculator.ViewModels
             }
         }
 
-        // Metodă pentru procent (la fel, dacă folosești DisplayTextHistory trebuie adaptat)
         private void ApplyPercent()
         {
             try
             {
-                // Construim expresia completă din DisplayTextHistory și DisplayText
                 string fullExpression = (DisplayTextHistory + " " + DisplayText).Trim();
                 string[] parts = fullExpression.Split(' ', StringSplitOptions.RemoveEmptyEntries);
-
-                // Ne asigurăm că avem cel puțin 3 elemente: operand, operator și operand
                 if (parts.Length < 3)
                     return;
 
@@ -458,7 +446,6 @@ namespace Calculator.ViewModels
                     _ => 0
                 };
 
-                // Actualizează DisplayText cu procentul calculat
                 DisplayText = percent.ToString();
             }
             catch
@@ -466,7 +453,6 @@ namespace Calculator.ViewModels
                 DisplayText = "Eroare";
             }
         }
-
 
         public void SetBase(int newBase)
         {
@@ -490,21 +476,15 @@ namespace Calculator.ViewModels
             Properties.Settings.Default.Save();
         }
 
-        // Metoda de conversie (se apelează de fiecare dată când DisplayText se modifică)
         private void UpdateConversionValues()
         {
             try
             {
-                // Folosim baza curentă pentru conversie
                 int currentBase = CurrentBase;
-                // Eliminăm separatorii de grupare (ex: „.” sau „,” în funcție de cultură)
                 string groupSeparator = CultureInfo.CurrentCulture.NumberFormat.NumberGroupSeparator;
                 string cleanedText = DisplayText.Replace(groupSeparator, "");
-
-                // Convertim textul curat la un număr întreg în baza curentă
                 int value = Convert.ToInt32(cleanedText, currentBase);
 
-                // Actualizăm proprietățile de conversie
                 DecValue = value.ToString();
                 HexValue = value.ToString("X");
                 OctValue = ConvertToOctal(value);
@@ -512,8 +492,7 @@ namespace Calculator.ViewModels
             }
             catch (Exception)
             {
-                // Dacă apare o eroare (ex. text invalid) se pot opta diferite strategii:
-                // aici, de exemplu, nu actualizăm conversiile.
+                // Optionally handle conversion errors here.
             }
         }
 
@@ -531,14 +510,11 @@ namespace Calculator.ViewModels
             }
             return octal;
         }
-
         #endregion
-
 
         #region Helpers
         protected void OnPropertyChanged(string name) =>
             PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(name));
-
         #endregion
     }
 }

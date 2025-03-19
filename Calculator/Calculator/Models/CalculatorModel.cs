@@ -8,15 +8,11 @@ namespace Calculator.Models
     class CalculatorModel
     {
         #region Fields
-
         private static List<double> memoryStack = new List<double>();
         private static double? memoryValue = null;
-
-
         #endregion
 
         #region Math Operations
-
         public static double Add(double a, double b) => a + b;
 
         public static double Subtract(double a, double b) => a - b;
@@ -25,7 +21,8 @@ namespace Calculator.Models
 
         public static double Divide(double a, double b)
         {
-            if (b == 0) throw new DivideByZeroException();
+            if (b == 0)
+                throw new DivideByZeroException();
             return a / b;
         }
 
@@ -42,7 +39,8 @@ namespace Calculator.Models
 
         public static double Sqrt(double a)
         {
-            if (a < 0) throw new ArithmeticException();
+            if (a < 0)
+                throw new ArithmeticException();
             return Math.Sqrt(a);
         }
 
@@ -50,26 +48,31 @@ namespace Calculator.Models
 
         public static double Reciprocal(double a)
         {
-            if (a == 0) throw new DivideByZeroException();
+            if (a == 0)
+                throw new DivideByZeroException();
             return 1 / a;
         }
 
         public static double Equals(double a) => a;
-
         #endregion
 
         #region Button Operations
 
+        #region Editing Operations
         public static void Backspace(ref string text)
         {
             if (text.Length > 0)
+            {
                 text = text.Remove(text.Length - 1);
+            }
         }
 
         public static void CE(ref string text) => text = "0";
 
         public static void C(ref string text) => text = "";
+        #endregion
 
+        #region Memory Operations
         public static void MC() => memoryStack.Clear();
 
         public static void MPlus(string text)
@@ -83,7 +86,6 @@ namespace Calculator.Models
                     memoryValue = value;
             }
         }
-
 
         public static void MMinus(string text)
         {
@@ -107,17 +109,14 @@ namespace Calculator.Models
             return memoryValue.HasValue ? memoryValue.Value.ToString() : "0";
         }
 
-
-
-
         public static string MR() => memoryValue.HasValue ? memoryValue.Value.ToString() : "0";
 
         public static string MGreater() => memoryValue.HasValue ? memoryValue.Value.ToString() : "0";
+        #endregion
 
         #endregion
 
         #region Digital Grouping
-
         public static void AddDigit(ref string text, string digit) => text += digit;
 
         public static void AddDot(ref string text)
@@ -125,7 +124,6 @@ namespace Calculator.Models
             if (!text.Contains("."))
                 text += ".";
         }
-
         #endregion
     }
 }
