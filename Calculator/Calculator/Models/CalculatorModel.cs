@@ -80,6 +80,7 @@ namespace Calculator.Models
             }
         }
 
+
         public static void MMinus(ref string text)
         {
             if (double.TryParse(text, out double value))
@@ -91,6 +92,7 @@ namespace Calculator.Models
             }
         }
 
+
         public static double? MS(string text)
         {
             if (double.TryParse(text, out double value))
@@ -101,9 +103,12 @@ namespace Calculator.Models
             return null;
         }
 
+
         public static string MR() => memoryStack.Any() ? memoryStack.Last().ToString() : "0";
 
+
         public static string MGreater() => memoryStack.Any() ? string.Join(", ", memoryStack) : "0";
+
 
         #endregion
 
