@@ -11,6 +11,7 @@ namespace Calculator.ViewModels
         #region Fields & Properties
 
         private string _displayText = "0";
+        private string _displayTextHistory = "";
         private int _currentBase = 10;
         private string _currentMode = "Standard";
         //private bool _isProgrammerMode = false;
@@ -29,6 +30,20 @@ namespace Calculator.ViewModels
                 {
                     _displayText = value;
                     OnPropertyChanged(nameof(DisplayText));
+                }
+            }
+        }
+
+        // New property for showing the history (the previous number and operator)
+        public string DisplayTextHistory
+        {
+            get => _displayTextHistory;
+            set
+            {
+                if (_displayTextHistory != value)
+                {
+                    _displayTextHistory = value;
+                    OnPropertyChanged(nameof(DisplayTextHistory));
                 }
             }
         }
@@ -177,7 +192,7 @@ namespace Calculator.ViewModels
         {
             string groupSeparator = CultureInfo.CurrentCulture.NumberFormat.NumberGroupSeparator;
             string decimalSeparator = CultureInfo.CurrentCulture.NumberFormat.NumberDecimalSeparator;
-            string unformatted = _displayText.Replace(groupSeparator, "");
+            string unformatted = DisplayText.Replace(groupSeparator, "");
 
             if (number == decimalSeparator && unformatted.Contains(decimalSeparator))
                 return;
@@ -192,7 +207,7 @@ namespace Calculator.ViewModels
 
             if (decimal.TryParse(unformatted, out decimal parsed))
             {
-                if (_isDigitGroupingEnabled)
+                if (IsDigitGroupingEnabled)
                     DisplayText = unformatted.Contains(decimalSeparator)
                         ? parsed.ToString("N", CultureInfo.CurrentCulture)
                         : parsed.ToString("N0", CultureInfo.CurrentCulture);
@@ -211,23 +226,18 @@ namespace Calculator.ViewModels
         {
             try
             {
-                string[] parts = _displayText.Split(' ');
-
-                if (parts.Length == 3)
+                if (string.IsNullOrEmpty(DisplayTextHistory))
                 {
-                    CalculateResult(); 
-                    DisplayText += $" {op} ";
+                    DisplayTextHistory = DisplayText + " " + op;
+                    DisplayText = "0";
                 }
-                else if (parts.Length == 1)
+                else
                 {
-                    DisplayText += $" {op} ";
+                    // If there is already a pending operation, calculate the intermediate result first.
+                    CalculateResult();
+                    DisplayTextHistory = DisplayText + " " + op;
+                    DisplayText = "0";
                 }
-                else if (parts.Length == 2)
-                {
-                    DisplayText = parts[0] + $" {op} ";
-                }
-
-                OnPropertyChanged(nameof(DisplayText));
             }
             catch
             {
@@ -240,14 +250,20 @@ namespace Calculator.ViewModels
         {
             try
             {
-                string[] parts = _displayText.Split(' ');
-                if (parts.Length < 3) return;
+                if (string.IsNullOrEmpty(DisplayTextHistory))
+                    return;
 
-                if (IsProgrammerMode && _currentBase != 10)
+                // Expect history to be in the form "operand operator"
+                string[] historyParts = DisplayTextHistory.Split(' ');
+                if (historyParts.Length < 2) return;
+
+                string opSymbol = historyParts[1];
+
+                if (IsProgrammerMode && CurrentBase != 10)
                 {
-                    int op1 = Convert.ToInt32(parts[0], _currentBase);
-                    int op2 = Convert.ToInt32(parts[2], _currentBase);
-                    int res = parts[1] switch
+                    int op1 = Convert.ToInt32(historyParts[0], CurrentBase);
+                    int op2 = Convert.ToInt32(DisplayText, CurrentBase);
+                    int res = opSymbol switch
                     {
                         "+" => (int)CalculatorModel.Add(op1, op2),
                         "-" => (int)CalculatorModel.Subtract(op1, op2),
@@ -256,13 +272,14 @@ namespace Calculator.ViewModels
                         "%" => (int)CalculatorModel.Modulo(op1, op2, "%"),
                         _ => throw new InvalidOperationException()
                     };
-                    DisplayText = Convert.ToString(res, _currentBase).ToUpper();
+                    DisplayTextHistory += " " + DisplayText + " =";
+                    DisplayText = Convert.ToString(res, CurrentBase).ToUpper();
                 }
                 else
                 {
-                    double op1 = double.Parse(parts[0]);
-                    double op2 = double.Parse(parts[2]);
-                    double res = parts[1] switch
+                    double op1 = double.Parse(historyParts[0]);
+                    double op2 = double.Parse(DisplayText);
+                    double res = opSymbol switch
                     {
                         "+" => CalculatorModel.Add(op1, op2),
                         "-" => CalculatorModel.Subtract(op1, op2),
@@ -271,10 +288,9 @@ namespace Calculator.ViewModels
                         "%" => CalculatorModel.Modulo(op1, op2, "%"),
                         _ => throw new InvalidOperationException()
                     };
+                    DisplayTextHistory += " " + DisplayText + " =";
                     DisplayText = res.ToString();
                 }
-
-                AppendNumber("");
             }
             catch
             {
@@ -356,7 +372,6 @@ namespace Calculator.ViewModels
         #endregion
 
         #region Helpers
-
         protected void OnPropertyChanged(string name) =>
             PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(name));
 
