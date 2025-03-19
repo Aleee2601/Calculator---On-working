@@ -286,8 +286,10 @@ namespace Calculator.ViewModels
                 else
                 {
                     // Dacă avem deja un operand+operator în DisplayTextHistory,
-                    // înseamnă că userul vrea să facă un calcul intermediar înainte de a introduce alt operator
+                    // se calculează rezultatul intermediar
                     CalculateResult();
+                    // Resetăm flag-ul pentru a permite concatenarea ulterioară a numărului
+                    _resultShown = false;
                     // Acum DisplayText conține rezultatul, îl stocăm cu noul operator
                     DisplayTextHistory = DisplayText + " " + op;
                     // Resetăm pentru operandul următor
@@ -299,6 +301,7 @@ namespace Calculator.ViewModels
                 DisplayText = "Eroare";
             }
         }
+
 
         // Metoda care calculează rezultatul
         private void CalculateResult()

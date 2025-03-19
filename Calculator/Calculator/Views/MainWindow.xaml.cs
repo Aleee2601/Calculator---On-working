@@ -102,6 +102,7 @@ namespace Calculator.Views
 
         private bool IsValidDigitForBase(string digit, int baseVal)
         {
+            // Același algoritm ca în metoda UpdateButtonsForBase:
             return digit switch
             {
                 "0" => true,
@@ -280,6 +281,40 @@ namespace Calculator.Views
             var vm = DataContext as CalculatorViewModel;
             if (vm == null) return;
 
+            // Tratare pentru modul Programmer: verificăm dacă tasta apăsată este o cifră sau literă validă pentru baza curentă
+            if (vm.IsProgrammerMode)
+            {
+                string keyStr = null;
+
+                // Pentru tastele de tip digit (clasic și numpad)
+                if (e.Key >= Key.D0 && e.Key <= Key.D9)
+                {
+                    keyStr = (e.Key - Key.D0).ToString();
+                }
+                else if (e.Key >= Key.NumPad0 && e.Key <= Key.NumPad9)
+                {
+                    keyStr = (e.Key - Key.NumPad0).ToString();
+                }
+                // Pentru tastele A-F
+                else if (e.Key >= Key.A && e.Key <= Key.F)
+                {
+                    keyStr = e.Key.ToString().ToUpper();
+                }
+
+                // Dacă am identificat o tastă care reprezintă o cifră sau literă,
+                // verificăm dacă este validă pentru baza curentă.
+                if (!string.IsNullOrEmpty(keyStr))
+                {
+                    if (IsValidDigitForBase(keyStr, vm.CurrentBase))
+                    {
+                        vm.NumberCommand.Execute(keyStr);
+                    }
+                    e.Handled = true;
+                    return;
+                }
+            }
+
+            // Tratarea tastelor în modul Standard sau pentru operatori și alte acțiuni
             if (e.Key == Key.Enter)
             {
                 if (vm.EqualsCommand.CanExecute(null))
@@ -300,6 +335,7 @@ namespace Calculator.Views
             }
             else if (e.Key >= Key.D0 && e.Key <= Key.D9)
             {
+                // În modul Standard se procesează direct
                 string digit = (e.Key - Key.D0).ToString();
                 vm.NumberCommand.Execute(digit);
                 e.Handled = true;
@@ -337,6 +373,7 @@ namespace Calculator.Views
                 e.Handled = true;
             }
         }
+
 
         #endregion
     }
